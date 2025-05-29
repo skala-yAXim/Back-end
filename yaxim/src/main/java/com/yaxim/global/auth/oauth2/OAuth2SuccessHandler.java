@@ -69,15 +69,4 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         response.sendRedirect(redirectUrl);
     }
-
-    private ResponseCookie createCookie(String name, String value, long maxAgeSeconds) {
-        return ResponseCookie.from(name, value)
-                .httpOnly(true)
-//                .secure(true) // 로컬 개발 시 주석 처리
-                .secure(false) // 배포 시 주석 처리
-                .sameSite("Lax")
-                .path("/")
-                .maxAge(maxAgeSeconds)
-                .build();
-    }
 }
