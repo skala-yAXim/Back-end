@@ -9,14 +9,13 @@ import com.yaxim.user.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Date;
 import java.util.UUID;
 
@@ -35,38 +34,48 @@ public class JwtProvider implements AuthenticationProvider {
 
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
-    private static final String BEARER = "bearer ";
-    public static final String AUTHORIZATION = "Authorization";
 
     private final UserRepository userRepository;
     private final TokenService tokenService;
 
     public JwtToken issue(Users user){
         return JwtToken.builder()
-                .accessToken(createAccessToken(user.getId().toString(), user.getUserRole()))
-                .refreshToken(createRefreshToken(user.getId().toString(), user.getUserRole()))
+                .accessToken(createAccessToken(user))
+                .refreshToken(createRefreshToken(user))
                 .build();
     }
 
     public JwtAuthentication getAuthentication(String accessToken) {
-        Jws<Claims> claimsJws = validateAccessToken(accessToken);
+        Jws<Claims> claims = validateToken(accessToken, ACCESS_TOKEN_SUBJECT);
 
-        Claims body = claimsJws.getBody();
-        Long userId = Long.parseLong((String) body.get("userId"));
-        UserRole userRole = UserRole.of((String) body.get("userRole"));
+        Claims body = claims.getBody();
+        Long userId = Long.parseLong(body.get("userId").toString());
+        UserRole userRole = UserRole.of(body.get("userRole").toString());
 
         return new JwtAuthentication(userId, userRole);
     }
 
-    @Override
-    public String createAccessToken(String userId, UserRole userRole) {
+    private Claims buildClaims(Users user) {
         Claims claims = Jwts.claims();
-        claims.put("userId", userId);
-        claims.put("userRole", userRole);
+        claims.put("userId", user.getId());
+        claims.put("name", user.getName());
+        claims.put("email", user.getEmail());
+        claims.put("userRole", user.getUserRole());
+
+        return claims;
+    }
+
+    @Override
+    public String createAccessToken(Users user) {
+        String jti = UUID.randomUUID().toString();
+        Claims claims = buildClaims(user);
+
+        tokenService.storeAccessTokenJti(user.getId().toString(), jti, Duration.ofSeconds(secrets.getAccessTokenValidityInSeconds()));
 
         return Jwts.builder()
                 .setSubject(ACCESS_TOKEN_SUBJECT)
                 .setClaims(claims)
+                .setId(jti)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + secrets.getAccessTokenValidityInSeconds() * 1000))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -74,14 +83,11 @@ public class JwtProvider implements AuthenticationProvider {
     }
 
     @Override
-    public String createRefreshToken(String userId, UserRole userRole) {
+    public String createRefreshToken(Users user) {
         String jti = UUID.randomUUID().toString();
+        Claims claims = buildClaims(user);
 
-        Claims claims = Jwts.claims();
-        claims.put("userId", userId);
-        claims.put("userRole", userRole);
-
-        tokenService.storeRefreshTokenJti(userId, jti);
+        tokenService.storeRefreshTokenJti(user.getId().toString(), jti, Duration.ofSeconds(secrets.getRefreshTokenValidityInSeconds()));
 
         return Jwts
                 .builder()
@@ -94,13 +100,11 @@ public class JwtProvider implements AuthenticationProvider {
                 .compact();
     }
 
-    public String refreshRefreshToken(String userId, UserRole userRole) {
+    public String refreshRefreshToken(Users user) {
         String jti = UUID.randomUUID().toString();
-        Claims claims = Jwts.claims();
-        claims.put("userId", userId);
-        claims.put("userRole", userRole);
+        Claims claims = buildClaims(user);
 
-        tokenService.resetRefreshTokenJti(userId, jti);
+        tokenService.resetRefreshTokenJti(user.getId().toString(), jti, Duration.ofSeconds(secrets.getRefreshTokenValidityInSeconds()));
 
         return Jwts
                 .builder()
@@ -113,28 +117,34 @@ public class JwtProvider implements AuthenticationProvider {
                 .compact();
     }
 
-    public Jws<Claims> validateAccessToken(String token) {
+    public Jws<Claims> validateToken(String token, String type) {
         try {
-            return Jwts.parserBuilder()
+            Jws<Claims> jws = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
-        } catch (ExpiredJwtException e) {
-            throw new TokenExpiredException();
-        } catch (JwtException e) {
-            throw new InvalidTokenException();
-        }
-    }
 
-    public Jws<Claims> validateRefreshToken(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
+            Claims claims = jws.getBody();
+
+            String userId = claims.get("userId").toString();
+            String jti = jws.getBody().getId();
+
+            if (type.equals(ACCESS_TOKEN_SUBJECT)){
+                if (jti == null || userId == null || tokenService.isAccessTokenInvalid(userId, jti)) {
+                    throw new TokenExpiredException();
+                }
+            } else {
+                if (jti == null || userId == null || tokenService.isRefreshTokenInvalid(userId, jti)) {
+                    throw new TokenExpiredException();
+                }
+            }
+
+            return jws;
         } catch (ExpiredJwtException e) {
+            log.info(e.getMessage());
             throw new TokenExpiredException();
         } catch (JwtException e) {
+            log.info(e.getMessage());
             throw new InvalidTokenException();
         }
     }
@@ -146,42 +156,14 @@ public class JwtProvider implements AuthenticationProvider {
                 .orElseThrow(UserNotFoundException::new);
 
         return JwtToken.builder()
-                .accessToken(createAccessToken(user.getId().toString(), user.getUserRole()))
-                .refreshToken(refreshRefreshToken(user.getId().toString(), user.getUserRole()))
+                .accessToken(createAccessToken(user))
+                .refreshToken(refreshRefreshToken(user))
                 .build();
     }
 
     public String getUserIdFromToken(String token) {
-        Jws<Claims> claims = validateRefreshToken(token);
+        Jws<Claims> claims = validateToken(token, REFRESH_TOKEN_SUBJECT);
 
-        String jti = claims.getBody().getId();
-        String userId = claims.getBody().get("userId", String.class);
-
-        if (!tokenService.isRefreshTokenValid(userId, jti)){
-            throw new InvalidTokenException();
-        }
-
-        return userId;
-    }
-
-    public String getAccessTokenFromHeader(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equalsIgnoreCase("access-token")) {
-                    return cookie.getValue();
-                }
-            }
-        }
-
-        String header = request.getHeader(AUTHORIZATION);
-        if (header != null) {
-            if (!header.toLowerCase().startsWith(BEARER)) {
-                throw new RuntimeException();
-            }
-            return header.substring(7);
-        }
-
-        return null;
+        return claims.getBody().get("userId").toString();
     }
 }

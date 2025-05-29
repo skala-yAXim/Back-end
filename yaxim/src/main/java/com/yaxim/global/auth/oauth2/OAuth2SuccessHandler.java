@@ -65,8 +65,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // 리다이렉트만 수행
         String redirectUrl = UriComponentsBuilder.fromUriString(URI)
-                .queryParam("isNewUser", isNewUser)
-                .queryParam("userRole", user.getUserRole())
                 .build().toUriString();
 
         response.sendRedirect(redirectUrl);
