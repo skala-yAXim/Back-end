@@ -1,10 +1,12 @@
 package com.yaxim.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yaxim.global.auth.CookieService;
 import com.yaxim.global.auth.jwt.JwtAuthEntryPoint;
 import com.yaxim.global.auth.jwt.JwtAuthenticationFilter;
 import com.yaxim.global.auth.jwt.JwtProvider;
-import com.yaxim.global.auth.oauth2.CustomOAuth2UserService;
+import com.yaxim.global.auth.oauth2.CustomOidcUserService;
+import com.yaxim.global.auth.oauth2.OAuth2FailureHandler;
 import com.yaxim.global.auth.oauth2.OAuth2SuccessHandler;
 import com.yaxim.global.error.ErrorHandleFilter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,8 +48,10 @@ import java.util.Locale;
 public class SecurityConfig {
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
-    private final CustomOAuth2UserService oAuth2UserService;
+    private final CookieService cookieService;
+    private final CustomOidcUserService oidcUserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
 
     @Bean
     public MessageSource messageSource() {
@@ -81,7 +85,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtProvider);
+        return new JwtAuthenticationFilter(jwtProvider, cookieService);
     }
 
     @Bean
@@ -137,14 +141,19 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/webjars/**", "/swagger-resources/**", "/error", "/favicon.ico").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/user/**").permitAll()
+                        .requestMatchers("/auth/reissue").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(errorHandleFilter(), JwtAuthenticationFilter.class)
                 .oauth2Login(oauth ->
-                        oauth.userInfoEndpoint(c -> c.userService(oAuth2UserService))
+                        oauth.userInfoEndpoint(c ->
+                                c.oidcUserService(oidcUserService)
+                                )
                                 .successHandler(oAuth2SuccessHandler)
+                                .failureHandler(oAuth2FailureHandler)
                 )
                 .build();
     }
