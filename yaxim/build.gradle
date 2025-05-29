@@ -44,8 +44,16 @@ dependencies {
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
+    // microsoft
+    implementation group: 'com.microsoft.azure', name: 'msal4j', version: '1.19.1'
+    implementation group: 'com.azure.spring', name: 'spring-cloud-azure-starter-active-directory', version: '5.19.0'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-oauth2-resource-server', version: '3.4.1'
+
     // oauth
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // webClient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     // postgresql
     runtimeOnly 'org.postgresql:postgresql'
