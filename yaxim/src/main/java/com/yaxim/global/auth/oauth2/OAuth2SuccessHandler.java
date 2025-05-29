@@ -1,5 +1,7 @@
 package com.yaxim.global.auth.oauth2;
 
+import com.yaxim.global.auth.CookieService;
+import com.yaxim.global.auth.graph.GraphApiService;
 import com.yaxim.global.auth.jwt.JwtProvider;
 import com.yaxim.global.auth.jwt.JwtSecret;
 import com.yaxim.global.auth.jwt.JwtToken;
@@ -11,39 +13,55 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.http.ResponseCookie;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    @Value("${redirect.uri}")
+    @Value("${redirect.uri.success}")
     private String URI;
     private final JwtSecret secrets;
     private final JwtProvider jwtProvider;
-    private final CustomOAuth2UserService oAuth2UserService;
+    private final CustomOidcUserService oidcUserService;
+    private final OAuth2AuthorizedClientService authorizedClientService;
+    private final GraphApiService graphApiService;
+    private final CookieService cookieService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-        Users user = oAuth2UserService.getUser();
-        boolean isNewUser = oAuth2UserService.isNewUser();
+        OAuth2AuthenticationToken oAuthToken = (OAuth2AuthenticationToken) authentication;
 
-        // accessToken, refreshToken 발급
+        OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+                oAuthToken.getAuthorizedClientRegistrationId(),
+                authentication.getName()
+        );
+
+        String accessToken = authorizedClient.getAccessToken().getTokenValue();
+        List<String> teams = graphApiService.getUserTeams(accessToken);
+
+        log.info(teams.toString());
+
+        Users user = oidcUserService.getUser();
+        log.info(user.getName());
+
         JwtToken token = jwtProvider.issue(user);
 
-        // 쿠키 생성 (secure, httpOnly 권장 설정)
-        ResponseCookie accessTokenCookie = createCookie("accessToken", token.getAccessToken(), secrets.getAccessTokenValidityInSeconds()); // 1시간
-        ResponseCookie refreshTokenCookie = createCookie("refreshToken", token.getRefreshToken(), secrets.getRefreshTokenValidityInSeconds()); // 14일
-
-        response.addHeader("Set-Cookie", accessTokenCookie.toString());
-        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+        cookieService.setCookie(
+                response,
+                token.getAccessToken(),
+                token.getRefreshToken()
+        );
 
         // 리다이렉트만 수행
         String redirectUrl = UriComponentsBuilder.fromUriString(URI)
