@@ -1,9 +1,8 @@
 package com.yaxim.global.auth.jwt;
 
-import com.yaxim.user.entity.user.UserRole;
+import com.yaxim.user.entity.user.Users;
 
 public interface AuthenticationProvider {
-    String createAccessToken(String userId, UserRole userRole);
-    String createRefreshToken(String userId, UserRole userRole);
-
+    String createAccessToken(Users user);
+    String createRefreshToken(Users user);
 }

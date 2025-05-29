@@ -6,9 +6,11 @@ import com.yaxim.user.entity.user.Users;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
+@Slf4j
 @Getter
 @Builder
 @AllArgsConstructor
@@ -17,24 +19,24 @@ public class OAuth2UserInfo {
         private String email;
 
     public static OAuth2UserInfo of(String registrationId, Map<String, Object> attributes) {
-        return switch (registrationId) { // registration id별로 userInfo 생성
-            case "google" -> ofGoogle(attributes);
-            case "micro" -> ofMicro(attributes);
+        return switch (registrationId) {
+            case "azure" -> ofAzure(attributes);
             default -> throw new IllegalRegistrationException();
         };
     }
 
-    private static OAuth2UserInfo ofGoogle(Map<String, Object> attributes) {
-        return OAuth2UserInfo.builder()
-                .name((String) attributes.get("name"))
-                .email((String) attributes.get("email"))
-                .build();
-    }
+    private static OAuth2UserInfo ofAzure(Map<String, Object> attributes) {
+        String email = (String) attributes.get("email");
+        if (email == null) {
+            email = (String) attributes.get("preferred_username");
+        }
+        if (email == null) {
+            email = (String) attributes.get("upn"); // User Principal Name
+        }
 
-    private static OAuth2UserInfo ofMicro(Map<String, Object> attributes) {
         return OAuth2UserInfo.builder()
                 .name((String) attributes.get("name"))
-                .email((String) attributes.get("email"))
+                .email(email)
                 .build();
     }
 
