@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: yaxim
+  profiles:
+    active: dev
+
+logging:
+  level:
+    org:
+      springframework:
+        security:
+          oauth2: DEBUG
+          web:
+            client: DEBUG
+      apache:
+        http: DEBUG
+server:
+  port: 8088
