@@ -24,7 +24,7 @@ public class Users {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
     @Setter
-    private String gitToken;
+    private String gitEmail;
     @Setter
     private boolean active;
 }

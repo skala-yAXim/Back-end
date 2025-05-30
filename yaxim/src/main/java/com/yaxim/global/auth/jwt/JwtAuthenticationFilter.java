@@ -36,7 +36,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 "/v3/api-docs/**",
                 "/favicon.ico",
                 "/error",
-                "/login*"
+                "/login*",
+                "/auth/reissue",
+                "/auth/logout"
         };
 
         String path = request.getRequestURI();
@@ -56,13 +58,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper(response);
 
         String accessToken = cookieService.getAccessTokenFromCookie(request);
-        String refreshToken = cookieService.getRefreshTokenFromCookie(request);
 
         if (accessToken != null) {
             Authentication authentication = jwtProvider.getAuthentication(accessToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } else if (refreshToken != null) {
-            Authentication authentication = jwtProvider.getAuthenticationByRefresh(refreshToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {
             throw new TokenNotProvidedException();

@@ -127,10 +127,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http,
-                                           HandlerMappingIntrospector introspector
-//            , ErrorHandleFilter errorHandleFilter
-    ) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .cors(httpSecurityCorsConfigurer -> corsConfigurationSource())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -144,6 +141,8 @@ public class SecurityConfig {
                         .requestMatchers("/webjars/**", "/swagger-resources/**", "/error", "/favicon.ico").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/login/**").permitAll()
+                        .requestMatchers("/auth/reissue").permitAll()
+                        .requestMatchers("/auth/logout").permitAll()
                         .requestMatchers("/user/**").permitAll()
                         .anyRequest().authenticated()
                 )
