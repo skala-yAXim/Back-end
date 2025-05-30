@@ -143,7 +143,6 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/user/**").permitAll()
-                        .requestMatchers("/auth/reissue").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

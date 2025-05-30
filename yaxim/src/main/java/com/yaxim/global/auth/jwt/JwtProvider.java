@@ -55,6 +55,16 @@ public class JwtProvider implements AuthenticationProvider {
         return new JwtAuthentication(userId, userRole);
     }
 
+    public JwtAuthentication getAuthenticationByRefresh(String refreshToken) {
+        Jws<Claims> claims = validateToken(refreshToken, REFRESH_TOKEN_SUBJECT);
+
+        Claims body = claims.getBody();
+        Long userId = Long.parseLong(body.get("userId").toString());
+        UserRole userRole = UserRole.of(body.get("userRole").toString());
+
+        return new JwtAuthentication(userId, userRole);
+    }
+
     private Claims buildClaims(Users user) {
         Claims claims = Jwts.claims();
         claims.put("userId", user.getId());

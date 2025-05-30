@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 @Getter
 public enum UserRole {
     GUEST("GUEST"),
-    USER("MEMBER"),
+    MEMBER("MEMBER"),
     LEADER("LEADER"),
     ADMIN(combine("ADMIN", "MEMBER", "LEADER"));
 
@@ -42,7 +42,7 @@ public enum UserRole {
     }
 
     public boolean isUser() {
-        return this == USER;
+        return this == MEMBER;
     }
 
     @JsonCreator
