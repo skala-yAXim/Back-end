@@ -32,7 +32,7 @@ public class AuthController {
     private final TokenService tokenService;
     private final CookieService cookieService;
 
-    @Operation(summary = "Access Token 유효성 확인 (AccessToken으로 Swagger JWT 설정 후 테스트해주세요.)", description = "쿠키에 저장된 Access Token이 유효한지 확인합니다. (개발용으로 Access Token의 Duration을 10초로 설정해두었습니다.)")
+    @Operation(summary = "Access Token 유효성 및 만료 유무 확인 (AccessToken으로 Swagger JWT 설정 후 테스트해주세요.)", description = "쿠키에 저장된 Access Token이 유효한지 확인합니다. (개발용으로 Access Token의 Duration을 10초로 설정해두었습니다.)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "토큰 유효함"),
             @ApiResponse(responseCode = "401", description = "토큰 유효하지 않음 또는 없음")
@@ -40,6 +40,11 @@ public class AuthController {
     @GetMapping("/isValid")
     public ResponseEntity<Void> isValid(HttpServletRequest request) {
         String accessToken = cookieService.getAccessTokenFromCookie(request);
+
+        if (accessToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         jwtProvider.validateToken(accessToken, "AccessToken");
 
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -53,16 +58,17 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = cookieService.getAccessTokenFromCookie(request);
-        if (accessToken == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        String refreshToken = cookieService.getRefreshTokenFromCookie(request);
 
         try {
-            Jws<Claims> claims = jwtProvider.validateToken(accessToken, "AccessToken");
+            Jws<Claims> claims = jwtProvider.validateToken(refreshToken, "RefreshToken");
             String userId = claims.getBody().get("userId").toString();
 
-            tokenService.invalidateAccessToken(userId);
             tokenService.invalidateRefreshToken(userId);
+
+            if (accessToken != null) {
+                tokenService.invalidateAccessToken(userId);
+            }
 
             cookieService.deleteCookie(response);
 
