@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ import java.util.Locale;
 public class ErrorHandleFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper;
-    private final MessageSource messageSource;
+    private final ApplicationContext applicationContext;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -41,6 +42,8 @@ public class ErrorHandleFilter extends OncePerRequestFilter {
                                  CustomException e,
                                  int statusCode,
                                  Locale locale) throws IOException {
+        MessageSource messageSource = applicationContext.getBean(MessageSource.class);
+
         ErrorResponse errorResponse = ErrorResponse.of(e, messageSource, locale);
         log.error("Exception in filter: trackingId={}, code={}, message={}",
                 errorResponse.getTrackingId(), errorResponse.getCode(), errorResponse.getMessage(), e);
