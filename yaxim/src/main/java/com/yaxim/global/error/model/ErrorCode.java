@@ -14,7 +14,7 @@ public enum ErrorCode {
     ILLEGAL_REGISTRATION(HttpStatus.BAD_REQUEST, "ILLEGAL_REGISTRATION"),
     USER_HAS_NO_AUTHORITY(HttpStatus.UNAUTHORIZED, "USER_HAS_NO_AUTHORITY"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_NOT_FOUND"),
-    ;
+    TOKEN_NOT_PROVIDED(HttpStatus.UNAUTHORIZED, "TOKEN_NOT_PROVIDED"),;
 
     private final HttpStatus status;
     private final String message;
