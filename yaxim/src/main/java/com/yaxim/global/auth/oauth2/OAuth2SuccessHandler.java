@@ -1,11 +1,12 @@
 package com.yaxim.global.auth.oauth2;
 
 import com.yaxim.global.auth.CookieService;
-import com.yaxim.global.auth.graph.GraphApiService;
+import com.yaxim.global.auth.jwt.TokenService;
+import com.yaxim.global.graph.GraphApiService;
 import com.yaxim.global.auth.jwt.JwtProvider;
 import com.yaxim.global.auth.jwt.JwtSecret;
 import com.yaxim.global.auth.jwt.JwtToken;
-import com.yaxim.user.entity.user.Users;
+import com.yaxim.user.entity.Users;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

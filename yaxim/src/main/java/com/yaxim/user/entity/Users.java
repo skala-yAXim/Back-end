@@ -1,4 +1,4 @@
-package com.yaxim.user.entity.user;
+package com.yaxim.user.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -15,6 +15,7 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull
+    @Column(unique = true)
     private String email;
     @NotNull
     @Setter

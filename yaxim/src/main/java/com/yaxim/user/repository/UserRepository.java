@@ -1,7 +1,7 @@
 package com.yaxim.user.repository;
 
-import com.yaxim.user.entity.user.UserRole;
-import com.yaxim.user.entity.user.Users;
+import com.yaxim.user.entity.UserRole;
+import com.yaxim.user.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

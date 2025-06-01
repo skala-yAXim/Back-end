@@ -1,4 +1,4 @@
-package com.yaxim.user.entity.user.validator;
+package com.yaxim.user.entity.validator;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

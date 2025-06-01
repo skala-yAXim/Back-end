@@ -1,8 +1,8 @@
 package com.yaxim.user.service;
 
 import com.yaxim.user.controller.dto.response.UserInfoResponse;
-import com.yaxim.user.entity.user.Users;
-import com.yaxim.user.entity.user.exception.UserNotFoundException;
+import com.yaxim.user.entity.Users;
+import com.yaxim.user.exception.UserNotFoundException;
 import com.yaxim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
