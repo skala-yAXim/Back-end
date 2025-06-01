@@ -13,7 +13,16 @@ import java.time.Duration;
 public class TokenService {
     private final String ACCESS_TOKEN = "access:";
     private final String REFRESH_TOKEN = "refresh:";
+    private final String OIDC_TOKEN = "oidc:";
     private final RedisTemplate<String, String> redisTemplate;
+
+    public void storeOidcToken(String userId, String oidcToken, Duration ttl) {
+        redisTemplate.opsForValue().set(OIDC_TOKEN + userId, oidcToken, ttl);
+    }
+
+    public String getOidcToken(String userId) {
+        return redisTemplate.opsForValue().get(OIDC_TOKEN + userId);
+    }
 
     public void storeAccessTokenJti(String userId, String jti, Duration ttl) {
         redisTemplate.opsForValue().set(ACCESS_TOKEN + userId, jti, ttl);
