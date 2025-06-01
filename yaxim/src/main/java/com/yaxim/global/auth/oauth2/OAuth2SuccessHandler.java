@@ -22,13 +22,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.util.List;
+import java.time.Duration;
 
 @RequiredArgsConstructor
 @Slf4j
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
+    private final TokenService tokenService;
     @Value("${redirect.uri.success}")
     private String URI;
     private final JwtSecret secrets;
@@ -49,12 +50,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         );
 
         String accessToken = authorizedClient.getAccessToken().getTokenValue();
-        List<String> teams = graphApiService.getUserTeams(accessToken);
-
-        log.info(teams.toString());
+        log.info("OIDC accessToken: {}", accessToken);
 
         Users user = oidcUserService.getUser();
         log.info(user.getName());
+
+        tokenService.storeOidcToken(user.getId().toString(), accessToken, Duration.ofHours(1));
+        log.info("access token saved");
 
         JwtToken token = jwtProvider.issue(user);
 
