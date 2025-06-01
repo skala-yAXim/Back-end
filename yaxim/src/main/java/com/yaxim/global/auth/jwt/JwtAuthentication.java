@@ -1,6 +1,6 @@
 package com.yaxim.global.auth.jwt;
 
-import com.yaxim.user.entity.user.UserRole;
+import com.yaxim.user.entity.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.Authentication;

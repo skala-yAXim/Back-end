@@ -1,6 +1,6 @@
-package com.yaxim.user.entity.user.validator;
+package com.yaxim.user.entity.validator;
 
-import com.yaxim.user.entity.user.UserRole;
+import com.yaxim.user.entity.UserRole;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

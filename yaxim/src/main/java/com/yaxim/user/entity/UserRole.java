@@ -1,4 +1,4 @@
-package com.yaxim.user.entity.user;
+package com.yaxim.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
