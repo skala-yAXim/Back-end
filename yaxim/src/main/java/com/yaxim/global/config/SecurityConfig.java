@@ -144,6 +144,7 @@ public class SecurityConfig {
                         .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/auth/reissue").permitAll()
+                        .requestMatchers("/projects/**").permitAll() // 🔥 테스트용 임시 추가
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
