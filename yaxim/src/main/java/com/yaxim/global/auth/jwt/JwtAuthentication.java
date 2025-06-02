@@ -1,15 +1,19 @@
 package com.yaxim.global.auth.jwt;
 
+import com.yaxim.user.entity.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
+import java.util.Collections;
 
+@Getter
 @AllArgsConstructor
 public class JwtAuthentication implements Authentication {
     private Long userId;
+    private String email;
     private UserRole userRole;
 
     @Override
