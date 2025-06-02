@@ -2,9 +2,7 @@ package com.yaxim.global.auth.oauth2;
 
 import com.yaxim.global.auth.CookieService;
 import com.yaxim.global.auth.jwt.TokenService;
-import com.yaxim.global.graph.GraphApiService;
 import com.yaxim.global.auth.jwt.JwtProvider;
-import com.yaxim.global.auth.jwt.JwtSecret;
 import com.yaxim.global.auth.jwt.JwtToken;
 import com.yaxim.user.entity.Users;
 import jakarta.servlet.ServletException;
@@ -32,11 +30,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final TokenService tokenService;
     @Value("${redirect.uri.success}")
     private String URI;
-    private final JwtSecret secrets;
     private final JwtProvider jwtProvider;
     private final CustomOidcUserService oidcUserService;
     private final OAuth2AuthorizedClientService authorizedClientService;
-    private final GraphApiService graphApiService;
     private final CookieService cookieService;
 
     @Override
@@ -50,13 +46,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         );
 
         String accessToken = authorizedClient.getAccessToken().getTokenValue();
-        log.info("OIDC accessToken: {}", accessToken);
 
         Users user = oidcUserService.getUser();
-        log.info(user.getName());
 
         tokenService.storeOidcToken(user.getId().toString(), accessToken, Duration.ofHours(1));
-        log.info("access token saved");
 
         JwtToken token = jwtProvider.issue(user);
 
@@ -66,7 +59,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 token.getRefreshToken()
         );
 
-        // 리다이렉트만 수행
+        // 성공 URL로 리다이렉트
         String redirectUrl = UriComponentsBuilder.fromUriString(URI)
                 .build().toUriString();
 

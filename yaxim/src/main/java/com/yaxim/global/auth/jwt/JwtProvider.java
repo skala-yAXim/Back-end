@@ -51,8 +51,9 @@ public class JwtProvider implements AuthenticationProvider {
         Claims body = claims.getBody();
         Long userId = Long.parseLong(body.get("userId").toString());
         UserRole userRole = UserRole.of(body.get("userRole").toString());
+        String email = body.get("email").toString();
 
-        return new JwtAuthentication(userId, userRole);
+        return new JwtAuthentication(userId, email);
     }
 
     private Claims buildClaims(Users user) {
