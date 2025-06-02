@@ -2,10 +2,9 @@ package com.yaxim.global.auth.oauth2;
 
 import com.yaxim.global.auth.CookieService;
 import com.yaxim.global.auth.jwt.TokenService;
-import com.yaxim.global.graph.GraphApiService;
 import com.yaxim.global.auth.jwt.JwtProvider;
-import com.yaxim.global.auth.jwt.JwtSecret;
 import com.yaxim.global.auth.jwt.JwtToken;
+import com.yaxim.team.service.TeamService;
 import com.yaxim.user.entity.Users;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,15 +29,18 @@ import java.time.Duration;
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final TokenService tokenService;
+    private final TeamService teamService;
     @Value("${redirect.uri.success}")
     private String URI;
-    private final JwtSecret secrets;
     private final JwtProvider jwtProvider;
     private final CustomOidcUserService oidcUserService;
     private final OAuth2AuthorizedClientService authorizedClientService;
-    private final GraphApiService graphApiService;
     private final CookieService cookieService;
 
+    /*
+    OAuth 로그인 성공 시 OIDC Access Token을 레디스에 저장, 해당 토큰으로 팀 정보 동기화 (변경 사항 있으면 업데이트 됨)
+    최종적으로 JWT Token 발급함
+     */
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
@@ -50,23 +52,26 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         );
 
         String accessToken = authorizedClient.getAccessToken().getTokenValue();
-        log.info("OIDC accessToken: {}", accessToken);
 
         Users user = oidcUserService.getUser();
-        log.info(user.getName());
 
+        // OIDC Access Token을 레디스에 저장
         tokenService.storeOidcToken(user.getId().toString(), accessToken, Duration.ofHours(1));
-        log.info("access token saved");
 
+        // Teams 정보와 동기화
+        teamService.loadTeam(user.getId());
+
+        // JWT Token 발급
         JwtToken token = jwtProvider.issue(user);
 
+        // 쿠키 발급
         cookieService.setCookie(
                 response,
                 token.getAccessToken(),
                 token.getRefreshToken()
         );
 
-        // 리다이렉트만 수행
+        // 성공 URL로 리다이렉트
         String redirectUrl = UriComponentsBuilder.fromUriString(URI)
                 .build().toUriString();
 

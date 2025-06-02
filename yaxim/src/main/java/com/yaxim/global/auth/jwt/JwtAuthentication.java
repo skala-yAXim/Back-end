@@ -6,22 +6,24 @@ import lombok.Getter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
+@Getter
 @AllArgsConstructor
 public class JwtAuthentication implements Authentication {
-    @Getter
     private Long userId;
+    private String email;
     private UserRole userRole;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        for (String authority : userRole.getName().split(",")) {
-            authorities.add(() -> authority);
-        }
-        return authorities;
+//        Collection<GrantedAuthority> authorities = new ArrayList<>();
+//        for (String authority : userRole.getName().split(",")) {
+//            authorities.add(() -> authority);
+//        }
+//        return authorities;
+        return Collections.emptyList();
     }
 
     @Override
