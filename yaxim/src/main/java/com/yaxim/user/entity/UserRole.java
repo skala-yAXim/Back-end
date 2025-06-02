@@ -10,10 +10,10 @@ import java.util.stream.Stream;
 
 @Getter
 public enum UserRole {
-    GUEST("GUEST"),
     MEMBER("MEMBER"),
     LEADER("LEADER"),
-    ADMIN(combine("ADMIN", "MEMBER", "LEADER"));
+    USER("USER"),
+    ADMIN(combine("ADMIN", "USER", "MEMBER", "LEADER"));
 
     @JsonValue
     private final String name;
@@ -37,12 +37,8 @@ public enum UserRole {
         return this == ADMIN;
     }
 
-    public boolean isOwner() {
-        return this == LEADER;
-    }
-
     public boolean isUser() {
-        return this == MEMBER;
+        return this == USER;
     }
 
     @JsonCreator
