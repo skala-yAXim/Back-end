@@ -55,11 +55,22 @@ dependencies {
     // webClient
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+    // AWS S3 - 프로젝트 파일 업로드용
+    implementation 'software.amazon.awssdk:s3:2.28.29'
+    implementation 'software.amazon.awssdk:sts:2.28.29'
+    implementation 'software.amazon.awssdk:auth:2.28.29'
+
+    // 파일 업로드 처리
+    implementation 'commons-io:commons-io:2.18.0'
+
     // postgresql
     runtimeOnly 'org.postgresql:postgresql'
 
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // ✅ DevTools - 개발 시 hot reload 지원
+    //developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
