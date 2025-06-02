@@ -10,6 +10,7 @@ import java.util.List;
 public class GraphTeamMemberResponse {
     public List<Members> value;
 
+    @Getter
     public static class Members {
         public String id;
         public String displayName;
