@@ -1,0 +1,79 @@
+# ====================
+# 팀장님 요구사항: Git에 올리지 말 것
+# ====================
+
+# 설정 파일들
+application.properties
+application-dev.yml
+
+# Docker 설정 파일들
+docker-compose.yml
+local_db/postgresql/docker-compose.yml
+local_db/redis/docker-compose.yml
+
+# 테스트 관련 문서들
+test-scenarios.md
+test-scenarios-updated.md
+PROJECT_TEST_GUIDE.md
+*test*.md
+*TEST*.md
+
+# ====================
+# 일반적인 Spring Boot .gitignore
+# ====================
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+.vscode/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Java
+*.class
+*.log
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# Spring Boot
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary folders
+tmp/
+temp/
