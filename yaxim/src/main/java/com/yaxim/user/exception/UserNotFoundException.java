@@ -1,4 +1,4 @@
-package com.yaxim.user.entity.user.exception;
+package com.yaxim.user.exception;
 
 import com.yaxim.global.error.model.CustomException;
 import com.yaxim.global.error.model.ErrorCode;

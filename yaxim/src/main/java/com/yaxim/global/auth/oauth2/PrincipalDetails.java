@@ -1,6 +1,6 @@
 package com.yaxim.global.auth.oauth2;
 
-import com.yaxim.user.entity.user.Users;
+import com.yaxim.user.entity.Users;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

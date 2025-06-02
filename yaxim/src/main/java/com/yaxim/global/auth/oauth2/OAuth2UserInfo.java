@@ -1,8 +1,8 @@
 package com.yaxim.global.auth.oauth2;
 
 import com.yaxim.global.auth.oauth2.exception.IllegalRegistrationException;
-import com.yaxim.user.entity.user.UserRole;
-import com.yaxim.user.entity.user.Users;
+import com.yaxim.user.entity.UserRole;
+import com.yaxim.user.entity.Users;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
