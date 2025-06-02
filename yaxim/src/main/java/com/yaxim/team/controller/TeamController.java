@@ -1,10 +1,12 @@
 package com.yaxim.team.controller;
 
+import com.yaxim.global.auth.aop.CheckRole;
 import com.yaxim.global.auth.jwt.JwtAuthentication;
+import com.yaxim.team.controller.dto.response.TeamMemberResponse;
 import com.yaxim.team.controller.dto.response.TeamResponse;
 import com.yaxim.team.service.TeamService;
+import com.yaxim.user.entity.UserRole;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,20 +18,19 @@ import java.util.List;
 public class TeamController {
     private final TeamService teamService;
 
-    @PostMapping("/init/one/{teamId}")
-    public ResponseEntity<TeamResponse> initTeam(@PathVariable String teamId,
-//                                     @PathVariable String accessToken,
-                                     JwtAuthentication auth) {
-        return ResponseEntity.ok(teamService.loadOneTeam(auth.getUserId(), teamId));
-    }
-
-    @PostMapping("/init/all")
-    public ResponseEntity<List<TeamResponse>> initTeam(JwtAuthentication auth) {
-        return ResponseEntity.ok(teamService.loadAllTeams(auth.getUserId()));
-    }
-
     @GetMapping
-    public ResponseEntity<List<TeamResponse>> getMyTeam(JwtAuthentication auth) {
-        return ResponseEntity.ok(teamService.getUserTeams(auth.getUserId()));
+    public ResponseEntity<TeamResponse> getMyTeam(JwtAuthentication auth) {
+        return ResponseEntity.ok(teamService.getUserTeam(auth.getUserId()));
+    }
+
+    @CheckRole(UserRole.LEADER)
+    @GetMapping("/members")
+    public ResponseEntity<List<TeamMemberResponse>> getMyTeamMembers(JwtAuthentication auth) {
+        return ResponseEntity.ok(teamService.getUserTeamMembers(auth.getUserId()));
+    }
+
+    @PostMapping("/load")
+    public ResponseEntity<TeamResponse> initTeam(JwtAuthentication auth) {
+        return ResponseEntity.ok(teamService.loadTeam(auth.getUserId()));
     }
 }
