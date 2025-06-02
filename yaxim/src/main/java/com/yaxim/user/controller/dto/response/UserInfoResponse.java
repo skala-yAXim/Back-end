@@ -10,5 +10,6 @@ public class UserInfoResponse {
     private long userId;
     private String name;
     private String email;
+    private UserRole userRole;
     private String gitEmail;
 }
