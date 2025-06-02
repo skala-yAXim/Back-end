@@ -3,6 +3,9 @@ spring:
     name: yaxim
   profiles:
     active: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 
 logging:
   level:

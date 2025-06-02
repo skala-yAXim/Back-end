@@ -1,4 +1,4 @@
-package com.yaxim.user.entity.user;
+package com.yaxim.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -10,10 +10,10 @@ import java.util.stream.Stream;
 
 @Getter
 public enum UserRole {
-    GUEST("GUEST"),
-    USER("MEMBER"),
+    MEMBER("MEMBER"),
     LEADER("LEADER"),
-    ADMIN(combine("ADMIN", "MEMBER", "LEADER"));
+    USER("USER"),
+    ADMIN(combine("ADMIN", "USER", "MEMBER", "LEADER"));
 
     @JsonValue
     private final String name;
@@ -35,10 +35,6 @@ public enum UserRole {
 
     public boolean isAdmin() {
         return this == ADMIN;
-    }
-
-    public boolean isOwner() {
-        return this == LEADER;
     }
 
     public boolean isUser() {

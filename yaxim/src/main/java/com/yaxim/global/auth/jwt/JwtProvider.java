@@ -2,9 +2,9 @@ package com.yaxim.global.auth.jwt;
 
 import com.yaxim.global.auth.jwt.exception.InvalidTokenException;
 import com.yaxim.global.auth.jwt.exception.TokenExpiredException;
-import com.yaxim.user.entity.user.UserRole;
-import com.yaxim.user.entity.user.Users;
-import com.yaxim.user.entity.user.exception.UserNotFoundException;
+import com.yaxim.user.entity.UserRole;
+import com.yaxim.user.entity.Users;
+import com.yaxim.user.exception.UserNotFoundException;
 import com.yaxim.user.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -51,8 +51,9 @@ public class JwtProvider implements AuthenticationProvider {
         Claims body = claims.getBody();
         Long userId = Long.parseLong(body.get("userId").toString());
         UserRole userRole = UserRole.of(body.get("userRole").toString());
+        String email = body.get("email").toString();
 
-        return new JwtAuthentication(userId, userRole);
+        return new JwtAuthentication(userId, email, userRole);
     }
 
     private Claims buildClaims(Users user) {

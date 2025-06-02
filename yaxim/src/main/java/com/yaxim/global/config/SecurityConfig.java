@@ -11,6 +11,7 @@ import com.yaxim.global.auth.oauth2.OAuth2SuccessHandler;
 import com.yaxim.global.error.ErrorHandleFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,6 +49,7 @@ import java.util.Locale;
 public class SecurityConfig {
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
+    private final ApplicationContext applicationContext;
     private final CookieService cookieService;
     private final CustomOidcUserService oidcUserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -56,7 +58,7 @@ public class SecurityConfig {
     @Bean
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-        messageSource.setBasename("messages");
+        messageSource.setBasename("classpath:messages");
         messageSource.setDefaultEncoding("UTF-8");
         messageSource.setCacheSeconds(60);
         messageSource.setDefaultLocale(Locale.KOREA);
@@ -100,7 +102,7 @@ public class SecurityConfig {
 
     @Bean
     public ErrorHandleFilter errorHandleFilter() {
-        return new ErrorHandleFilter(objectMapper, messageSource());
+        return new ErrorHandleFilter(objectMapper, applicationContext);
     }
 
     @Bean
@@ -125,10 +127,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http,
-                                           HandlerMappingIntrospector introspector
-//            , ErrorHandleFilter errorHandleFilter
-    ) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .cors(httpSecurityCorsConfigurer -> corsConfigurationSource())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -142,9 +141,10 @@ public class SecurityConfig {
                         .requestMatchers("/webjars/**", "/swagger-resources/**", "/error", "/favicon.ico").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/login/**").permitAll()
-                        .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/auth/reissue").permitAll()
                         .requestMatchers("/projects/**").permitAll() // 🔥 테스트용 임시 추가
+                        .requestMatchers("/auth/logout").permitAll()
+                        .requestMatchers("/user/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

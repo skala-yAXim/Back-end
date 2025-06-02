@@ -1,7 +1,7 @@
 package com.yaxim.global.auth.oauth2;
 
-import com.yaxim.user.entity.user.Users;
-import com.yaxim.user.entity.user.exception.UserNotFoundException;
+import com.yaxim.user.entity.Users;
+import com.yaxim.user.exception.UserNotFoundException;
 import com.yaxim.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
@@ -25,8 +25,6 @@ public class CustomOidcUserService extends OidcUserService {
     @Transactional
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
         OidcUser oidcUser = super.loadUser(userRequest);
-
-        log.info(oidcUser.toString());
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         String userNameAttributeName = userRequest.getClientRegistration()
