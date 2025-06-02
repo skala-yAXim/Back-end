@@ -57,26 +57,6 @@ public class GraphApiService {
         return response != null ? response.value.get(0) : null;
     }
 
-    public GraphTeamResponse.Team getTeamInfo(Long userId, String teamId) {
-        String accessToken = getAccessToken(userId);
-
-        GraphTeamResponse.Team response =  webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/groups/{teamId}")
-                        .queryParam("$select", "id,displayName,description")
-                        .build(teamId))
-                .headers(headers -> headers.setBearerAuth(accessToken))
-                .retrieve()
-                .bodyToMono(GraphTeamResponse.Team.class)
-                .onErrorResume(e -> {
-                    e.printStackTrace();
-                    return Mono.empty();
-                })
-                .block();
-
-        return response;
-    }
-
     public List<GraphTeamMemberResponse.Members> getMyTeamMembers(String teamId, Long userId) {
         String accessToken = getAccessToken(userId);
         String url = "/teams/" + teamId + "/members";

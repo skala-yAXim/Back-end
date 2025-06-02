@@ -28,4 +28,10 @@ public class Users {
     private String gitEmail;
     @Setter
     private boolean active;
+
+    public Users(int id, String name, String email) {
+        this.id = (long) id;
+        this.name = name;
+        this.email = email;
+    }
 }

@@ -45,7 +45,7 @@ public class OAuth2UserInfo {
         return Users.builder()
                 .name(name)
                 .email(email)
-                .userRole(UserRole.MEMBER)
+                .userRole(UserRole.USER)
                 .build();
     }
 }
