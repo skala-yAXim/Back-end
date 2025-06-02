@@ -142,6 +142,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/auth/reissue").permitAll()
+                        .requestMatchers("/projects/**").permitAll() // 🔥 테스트용 임시 추가
                         .requestMatchers("/auth/logout").permitAll()
                         .requestMatchers("/user/**").permitAll()
                         .anyRequest().authenticated()
