@@ -53,7 +53,7 @@ public class JwtProvider implements AuthenticationProvider {
         UserRole userRole = UserRole.of(body.get("userRole").toString());
         String email = body.get("email").toString();
 
-        return new JwtAuthentication(userId, email);
+        return new JwtAuthentication(userId, email, userRole);
     }
 
     private Claims buildClaims(Users user) {
