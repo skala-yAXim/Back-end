@@ -17,7 +17,7 @@ public enum ErrorCode {
     TOKEN_NOT_PROVIDED(HttpStatus.UNAUTHORIZED, "TOKEN_NOT_PROVIDED"),
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM_NOT_FOUND" ),
     OIDC_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "OIDC_TOKEN_EXPIRED" ),
-    ;
+    TEAM_MEMBER_NOT_MAPPED(HttpStatus.NOT_FOUND, "TEAM_MEMBER_NOT_MAPPED"),;
 
     private final HttpStatus status;
     private final String message;
