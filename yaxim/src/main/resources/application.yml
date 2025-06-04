@@ -15,7 +15,6 @@ logging:
           oauth2: DEBUG
           web:
             client: DEBUG
-      apache:
-        http: DEBUG
+
 server:
   port: 8088
