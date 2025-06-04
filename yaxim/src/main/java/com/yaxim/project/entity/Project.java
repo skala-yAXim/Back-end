@@ -1,8 +1,8 @@
 package com.yaxim.project.entity;
 
+import com.yaxim.team.entity.Team;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -22,21 +22,21 @@ public class Project {
     private Long id;
 
     @NotNull
-    @Size(min = 1, max = 200, message = "프로젝트 명은 1자 이상 200자 이하여야 합니다.")
+    @Setter
     @Column(nullable = false, length = 200)
     private String name;
 
     @NotNull
-    @Column(nullable = false)
-    private Long teamId;
+    @JoinColumn(name = "team_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Team team;
 
-    @Column(name = "start_date")
+    @NotNull
     private LocalDateTime startDate;
-
-    @Column(name = "end_date")
+    @NotNull
     private LocalDateTime endDate;
 
-    @Size(max = 1000, message = "프로젝트 설명은 1000자 이하여야 합니다.")
+    @Setter
     @Column(length = 1000)
     private String description;
 
@@ -45,11 +45,11 @@ public class Project {
     @Builder.Default
     private List<ProjectFile> projectFiles = new ArrayList<>();
 
-    // 비즈니스 메서드들
-    public void updateBasicInfo(String name, String description) {
-        if (name != null && !name.trim().isEmpty()) {
-            this.name = name.trim();
-        }
+    public Project(String name, Team team, LocalDateTime startDate, LocalDateTime endDate, String description) {
+        this.name = name;
+        this.team = team;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.description = description;
     }
 
@@ -59,10 +59,6 @@ public class Project {
         }
         this.startDate = startDate;
         this.endDate = endDate;
-    }
-
-    public void updateTeam(Long teamId) {
-        this.teamId = teamId;
     }
 
     // ✅ ProjectFile 관리 메서드들 (양방향 관계 고려)
@@ -76,50 +72,18 @@ public class Project {
         projectFile.setProject(null); // 양방향 관계 해제
     }
 
-    public void clearProjectFiles() {
-        this.projectFiles.forEach(file -> file.setProject(null));
-        this.projectFiles.clear();
-    }
-
     // 동적 상태 계산 메서드 (팀장님 요구사항)
-    public String calculateStatus() {
+    public ProjectStatus calculateStatus() {
         LocalDateTime now = LocalDateTime.now();
         
-        if (startDate == null && endDate == null) {
-            return "미정";
-        }
-        
         if (startDate != null && now.isBefore(startDate)) {
-            return "시작전";
+            return ProjectStatus.PLANNING;
         }
         
         if (endDate != null && now.isAfter(endDate)) {
-            return "완료";
+            return ProjectStatus.COMPLETED;
         }
         
-        return "진행중";
-    }
-
-    // UI에서 요구하는 기간 표시용 메서드
-    public String getDateRange() {
-        if (startDate == null && endDate == null) {
-            return null;
-        }
-        if (startDate == null) {
-            return "~ " + endDate.toLocalDate();
-        }
-        if (endDate == null) {
-            return startDate.toLocalDate() + " ~";
-        }
-        return startDate.toLocalDate() + " ~ " + endDate.toLocalDate();
-    }
-
-    // 편의 메서드들 (기존 코드와의 호환성)
-    public String getProjectName() {
-        return this.name;
-    }
-
-    public String getSummary() {
-        return this.description;
+        return ProjectStatus.IN_PROGRESS;
     }
 }
