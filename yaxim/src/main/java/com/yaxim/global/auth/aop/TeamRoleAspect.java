@@ -10,8 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Method;
 
 @Slf4j
 @Aspect
@@ -20,23 +23,22 @@ import org.springframework.stereotype.Component;
 public class TeamRoleAspect {
     private final TeamMemberRepository teamMemberRepository;
 
-    @Around("@annotation(checkRole)")
-    public Object checkRole(ProceedingJoinPoint joinPoint, CheckRole checkRole) throws Throwable {
+    @Around("@within(com.yaxim.global.auth.aop.CheckRole) || @annotation(com.yaxim.global.auth.aop.CheckRole)")
+    public Object checkRole(ProceedingJoinPoint joinPoint) throws Throwable {
         // 현재 인증 정보 가져오기
         JwtAuthentication authentication = (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getEmail();
 
-        log.info(String.valueOf(checkRole.value()));
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        Method method = methodSignature.getMethod();
 
-//        // 메서드 인자에서 teamId 찾기
-//        String teamId = extractTeamIdFromArgs(joinPoint.getArgs());
-//        if (teamId == null) {
-//            throw new IllegalArgumentException("teamId가 메서드 파라미터에 필요합니다.");
-//        }
+        // 1. 메서드에서 어노테이션 우선 조회
+        CheckRole checkRole = method.getAnnotation(CheckRole.class);
 
-//        // 권한 확인
-//        TeamMember member = teamMemberRepository.findByTeamIdAndEmail(teamId, email)
-//                .orElseThrow(TeamNotFoundException::new);
+        // 2. 없으면 클래스에서 조회
+        if (checkRole == null) {
+            checkRole = joinPoint.getTarget().getClass().getAnnotation(CheckRole.class);
+        }
 
         TeamMember member = teamMemberRepository.findByEmail(email)
                 .orElseThrow(TeamMemberNotMappedException::new);
@@ -50,13 +52,4 @@ public class TeamRoleAspect {
 
         return joinPoint.proceed();
     }
-
-//    private String extractTeamIdFromArgs(Object[] args) {
-//        for (Object arg : args) {
-//            if (arg instanceof String && ((String) arg).startsWith("team_")) {
-//                return (String) arg;
-//            }
-//        }
-//        return null;
-//    }
 }
