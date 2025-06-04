@@ -2,10 +2,12 @@ package com.yaxim.user.service;
 
 import com.yaxim.team.entity.TeamMember;
 import com.yaxim.team.repository.TeamMemberRepository;
+import com.yaxim.user.controller.dto.request.UserInfoRequest;
 import com.yaxim.user.controller.dto.response.UserInfoResponse;
 import com.yaxim.user.entity.Users;
 import com.yaxim.user.exception.UserNotFoundException;
 import com.yaxim.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,31 @@ public class UserService {
     public UserInfoResponse getUserInfo(Long userId) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
+
+        TeamMember member = teamMemberRepository.findByEmail(user.getEmail())
+                .orElseThrow(UserNotFoundException::new);
+
+        return new UserInfoResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                member.getRole(),
+                user.getGitEmail()
+        );
+    }
+
+    @Transactional
+    public UserInfoResponse updateUserInfo(UserInfoRequest request, Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+
+        if (request.getGitEmail() != null) {
+            user.setGitEmail(request.getGitEmail());
+        }
 
         TeamMember member = teamMemberRepository.findByEmail(user.getEmail())
                 .orElseThrow(UserNotFoundException::new);
