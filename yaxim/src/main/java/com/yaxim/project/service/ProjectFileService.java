@@ -1,5 +1,6 @@
 package com.yaxim.project.service;
 
+import com.yaxim.global.s3.S3Service;
 import com.yaxim.project.entity.Project;
 import com.yaxim.project.entity.ProjectFile;
 import com.yaxim.project.exception.ProjectFileNotFoundException;
@@ -23,100 +24,39 @@ import java.util.ArrayList;
 public class ProjectFileService {
 
     private final ProjectFileRepository projectFileRepository;
-    private final ProjectRepository projectRepository;
     private final S3Service s3Service;
 
     /**
-     * 프로젝트 파일 업로드 (단일 파일)
+     * 파일 업로드 (일부 실패해도 성공한 파일은 유지)
      */
     @Transactional
-    public ProjectFile uploadProjectFile(Long projectId, MultipartFile file) {
-        return uploadSingleProjectFile(projectId, file);
-    }
-
-    /**
-     * ✅ 안전한 여러 파일 일괄 업로드 (일부 실패해도 성공한 파일은 유지)
-     */
-    @Transactional
-    public List<ProjectFile> uploadProjectFiles(Long projectId, List<MultipartFile> files) {
-        List<ProjectFile> successfulUploads = new ArrayList<>();
-        List<String> failedFiles = new ArrayList<>();
-        
-        log.info("=== ProjectFileService.uploadProjectFiles 시작 ===");
-        log.info("프로젝트 ID: {}", projectId);
-        log.info("전달받은 파일 수: {}", files != null ? files.size() : 0);
+    public void uploadProjectFiles(Project project, List<MultipartFile> files) {
         
         if (files == null || files.isEmpty()) {
-            log.warn("파일 리스트가 null이거나 비어있습니다.");
-            return successfulUploads;
+            return;
         }
-        
-        // ✅ 파일별 상세 정보 로깅
-        for (int i = 0; i < files.size(); i++) {
-            MultipartFile file = files.get(i);
-            log.info("파일 [{}]: name={}, originalFilename={}, size={}, isEmpty={}", 
-                    i, 
-                    file != null ? file.getName() : "null",
-                    file != null ? file.getOriginalFilename() : "null",
-                    file != null ? file.getSize() : 0,
-                    file != null ? file.isEmpty() : true);
+
+        for (MultipartFile file : files) {
+            ProjectFile uploadedFile = uploadSingleProjectFile(project, file);
+            project.addProjectFile(uploadedFile);
         }
-        
-        for (int i = 0; i < files.size(); i++) {
-            MultipartFile file = files.get(i);
-            try {
-                log.info("파일 [{}] 업로드 시작: {}", i, file.getOriginalFilename());
-                
-                // ✅ 파일별로 개별 처리 (다른 파일에 영향 안 주기 위해)
-                ProjectFile uploadedFile = uploadSingleProjectFile(projectId, file);
-                successfulUploads.add(uploadedFile);
-                
-                log.info("파일 [{}] 업로드 성공: {} (파일 ID: {})", 
-                        i, file.getOriginalFilename(), uploadedFile.getId());
-                
-            } catch (Exception e) {
-                failedFiles.add(file.getOriginalFilename());
-                log.error("파일 [{}] 업로드 실패: {}, 에러: {}", 
-                        i, file.getOriginalFilename(), e.getMessage(), e);
-            }
-        }
-        
-        log.info("=== ProjectFileService.uploadProjectFiles 완료 ===");
-        log.info("성공한 파일 수: {}", successfulUploads.size());
-        log.info("실패한 파일 수: {}", failedFiles.size());
-        
-        if (!failedFiles.isEmpty()) {
-            log.warn("실패한 파일들: {}", String.join(", ", failedFiles));
-        }
-        
-        if (!successfulUploads.isEmpty()) {
-            List<String> successFileNames = successfulUploads.stream()
-                    .map(ProjectFile::getOriginalFileName)
-                    .toList();
-            log.info("성공한 파일들: {}", String.join(", ", successFileNames));
-        }
-        
-        return successfulUploads;
     }
     
     /**
-     * ✅ 개별 파일 업로드 (다른 파일에 영향 주지 않도록 분리)
+     * 개별 파일 업로드
      */
-    private ProjectFile uploadSingleProjectFile(Long projectId, MultipartFile file) {
-        log.info("uploadSingleProjectFile 시작 - 프로젝트 ID: {}, 파일: {}", 
-                projectId, file.getOriginalFilename());
-        
-        // ✅ Project 엔티티 조회
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(ProjectNotFoundException::new);
-                
-        // ✅ 중복 파일명 처리 (자동 리네임)
+    private ProjectFile uploadSingleProjectFile(Project project, MultipartFile file) {
+
+        log.info(project.getName());
+        log.info(file.getOriginalFilename());
+
+        // 중복 파일명 처리 (자동 리네임)
         String originalFileName = file.getOriginalFilename();
         Optional<ProjectFile> existingFile = projectFileRepository
-                .findByProjectIdAndOriginalFileName(projectId, originalFileName);
+                .findByProjectIdAndOriginalFileName(project.getId(), originalFileName);
         
         if (existingFile.isPresent()) {
-            // ✅ 중복 파일명 자동 리네임
+            // 자동 리네임
             String timestamp = String.valueOf(System.currentTimeMillis());
             String extension = "";
             if (originalFileName != null && originalFileName.contains(".")) {
@@ -126,17 +66,15 @@ public class ProjectFileService {
             } else {
                 originalFileName = originalFileName + "_" + timestamp;
             }
-            log.info("중복 파일명 자동 리네임: {} -> {}", file.getOriginalFilename(), originalFileName);
         }
 
-        // ✅ S3에 파일 업로드
-        log.info("S3 업로드 시작: {}", originalFileName);
-        S3Service.S3UploadResult uploadResult = s3Service.uploadProjectFile(file, projectId);
-        log.info("S3 업로드 완료: {} -> {}", originalFileName, uploadResult.getS3ObjectKey());
+        S3Service.S3UploadResult uploadResult = s3Service.uploadProjectFile(
+                file,
+                project.getId()
+        );
 
-        // ✅ DB에 파일 정보 저장 (리네임된 파일명 사용)
-        ProjectFile projectFile = ProjectFile.builder()
-                .originalFileName(originalFileName)  // ✅ 리네임된 파일명 사용
+        return ProjectFile.builder()
+                .originalFileName(originalFileName)
                 .storedFileName(uploadResult.getStoredFileName())
                 .fileUrl(uploadResult.getFileUrl())
                 .fileType(uploadResult.getFileType())
@@ -144,32 +82,6 @@ public class ProjectFileService {
                 .s3BucketName(uploadResult.getBucketName())
                 .s3ObjectKey(uploadResult.getS3ObjectKey())
                 .build();
-
-        // ✅ 양방향 관계 설정
-        projectFile.setProject(project);
-        project.addProjectFile(projectFile);
-
-        ProjectFile savedFile = projectFileRepository.save(projectFile);
-        
-        log.info("DB 저장 완료 - 파일 ID: {}, 파일명: {}", 
-                savedFile.getId(), savedFile.getOriginalFileName());
-
-        return savedFile;
-    }
-
-    /**
-     * 프로젝트 파일 목록 조회
-     */
-    public List<ProjectFile> getProjectFiles(Long projectId) {
-        return projectFileRepository.findByProjectIdOrderByCreatedAtDesc(projectId);
-    }
-
-    /**
-     * 파일 다운로드 URL 생성
-     */
-    public String generateDownloadUrl(Long fileId) {
-        ProjectFile projectFile = findProjectFileById(fileId);
-        return s3Service.generatePresignedUrl(projectFile.getS3ObjectKey());
     }
 
     /**
@@ -209,70 +121,6 @@ public class ProjectFileService {
 
         log.info("프로젝트 전체 파일 삭제 완료 - 프로젝트 ID: {}, 삭제된 파일 수: {}", 
                 projectId, projectFiles.size());
-    }
-
-    /**
-     * 파일별 타입 필터링 조회
-     */
-    public List<ProjectFile> getProjectFilesByType(Long projectId, String fileType) {
-        if ("image".equalsIgnoreCase(fileType)) {
-            return projectFileRepository.findImageFilesByProjectId(projectId);
-        } else if ("pdf".equalsIgnoreCase(fileType)) {
-            return projectFileRepository.findPdfFilesByProjectId(projectId);
-        } else if ("office".equalsIgnoreCase(fileType)) {
-            return projectFileRepository.findOfficeFilesByProjectId(projectId);
-        } else {
-            return projectFileRepository.findByProjectIdAndFileTypeContainingOrderByCreatedAtDesc(projectId, fileType);
-        }
-    }
-
-    /**
-     * 프로젝트 파일 통계 조회
-     */
-    public ProjectFileStats getProjectFileStats(Long projectId) {
-        long fileCount = projectFileRepository.countByProjectId(projectId);
-        Long totalSize = projectFileRepository.sumFileSizeByProjectId(projectId).orElse(0L);
-        
-        List<ProjectFile> imageFiles = projectFileRepository.findImageFilesByProjectId(projectId);
-        List<ProjectFile> pdfFiles = projectFileRepository.findPdfFilesByProjectId(projectId);
-        List<ProjectFile> officeFiles = projectFileRepository.findOfficeFilesByProjectId(projectId);
-
-        return ProjectFileStats.builder()
-                .totalFileCount(fileCount)
-                .totalFileSize(totalSize)
-                .imageFileCount(imageFiles.size())
-                .pdfFileCount(pdfFiles.size())
-                .officeFileCount(officeFiles.size())
-                .build();
-    }
-
-    /**
-     * 파일 단건 조회
-     */
-    public ProjectFile getProjectFile(Long fileId) {
-        return findProjectFileById(fileId);
-    }
-
-    /**
-     * 파일 정보 업데이트 (파일명 변경 등)
-     */
-    @Transactional
-    public ProjectFile updateProjectFile(Long fileId, String newOriginalFileName) {
-        ProjectFile projectFile = findProjectFileById(fileId);
-        
-        // 원본 파일명만 변경 (실제 파일은 그대로)
-        projectFile.updateFileInfo(
-                newOriginalFileName, 
-                projectFile.getStoredFileName(),
-                projectFile.getFileUrl(),
-                projectFile.getFileType(),
-                projectFile.getFileSize()
-        );
-
-        log.info("프로젝트 파일 정보 업데이트 완료 - 파일 ID: {}, 새 파일명: {}", 
-                fileId, newOriginalFileName);
-
-        return projectFile;
     }
 
     // === Private Helper Methods ===
