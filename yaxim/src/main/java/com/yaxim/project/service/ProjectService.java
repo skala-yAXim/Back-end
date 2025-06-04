@@ -1,19 +1,23 @@
 package com.yaxim.project.service;
 
-import com.yaxim.project.controller.dto.request.MultipartProjectCreateRequest;
-import com.yaxim.project.controller.dto.request.MultipartProjectUpdateRequest;
-import com.yaxim.project.controller.dto.response.ProjectPageResponse;
+import com.yaxim.project.controller.dto.request.ProjectCreateRequest;
+import com.yaxim.project.controller.dto.request.ProjectUpdateRequest;
+import com.yaxim.project.controller.dto.response.ProjectDetailResponse;
 import com.yaxim.project.controller.dto.response.ProjectResponse;
 import com.yaxim.project.entity.Project;
-import com.yaxim.project.entity.ProjectFile;
 import com.yaxim.project.exception.*;
 import com.yaxim.project.repository.ProjectRepository;
+import com.yaxim.team.entity.Team;
+import com.yaxim.team.exception.TeamMemberNotMappedException;
+import com.yaxim.team.repository.TeamMemberRepository;
+import com.yaxim.user.entity.Users;
+import com.yaxim.user.exception.UserHasNoAuthorityException;
+import com.yaxim.user.exception.UserNotFoundException;
+import com.yaxim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,120 +33,139 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProjectFileService projectFileService;
+    private final TeamMemberRepository teamMemberRepository;
+    private final UserRepository userRepository;
 
     /**
      * 프로젝트 생성 (파일 포함/미포함 통합)
      */
     @Transactional
-    public ProjectResponse createProject(MultipartProjectCreateRequest request) {
+    public ProjectDetailResponse createProject(
+            ProjectCreateRequest request,
+            Long userId
+    ) {
         // 팀장님 스타일: Service에서 직접 예외 검증 및 throw
-        validateProjectBasicInfo(request);
+        validateProjectInfo(request);
         validateDateRange(request.getStartDate(), request.getEndDate());
-        
-        // 파일이 있는 경우에만 파일 검증
-        if (request.hasFiles()) {
-            validateFileUpload(request);
-        }
+
+        Users user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        Team team = teamMemberRepository.findByEmail(user.getEmail())
+                .orElseThrow(TeamMemberNotMappedException::new)
+                .getTeam();
 
         // 프로젝트 생성
-        Project project = request.toEntity();
-        Project savedProject = projectRepository.save(project);
+        Project project = Project.builder()
+                .name(request.getName())
+                .team(team)
+                .description(request.getDescription())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .build();
+
+        List<MultipartFile> files = request.getFiles();
 
         // 파일 업로드 처리 (파일이 있는 경우만)
-        if (request.hasFiles()) {
-            List<MultipartFile> validFiles = request.getValidFiles();
-            try {
-                List<ProjectFile> uploadedFiles = projectFileService.uploadProjectFiles(savedProject.getId(), validFiles);
-                log.info("프로젝트 파일 업로드 성공 - 프로젝트 ID: {}, 업로드된 파일 수: {}", 
-                        savedProject.getId(), uploadedFiles.size());
-            } catch (Exception e) {
-                log.warn("파일 업로드 실패 (프로젝트는 정상 생성됨) - 프로젝트 ID: {}, 에러: {}", 
-                        savedProject.getId(), e.getMessage());
-                // 파일 업로드 실패해도 프로젝트는 성공적으로 생성된 상태로 계속 진행
-            }
+        if (!files.isEmpty()) {
+            List<MultipartFile> validFiles = validateFileUpload(files);
+            projectFileService.uploadProjectFiles(project, validFiles);
         }
 
-        String fileInfo = request.hasFiles() ? " (파일 " + request.getValidFiles().size() + "개 포함)" : " (파일 없음)";
-        log.info("프로젝트 생성 완료{} - ID: {}, 프로젝트명: {}", fileInfo, savedProject.getId(), savedProject.getName());
-
-        // 최신 상태로 다시 조회 (파일 정보 포함)
-        Project refreshedProject = findProjectById(savedProject.getId());
-        return ProjectResponse.from(refreshedProject);
+        return ProjectDetailResponse.from(projectRepository.save(project));
     }
 
     /**
      * 프로젝트 단건 조회
      */
-    public ProjectResponse getProject(Long projectId) {
+    public ProjectDetailResponse getProject(Long projectId) {
         Project project = findProjectById(projectId);
-        return ProjectResponse.from(project);
+        return ProjectDetailResponse.from(project);
     }
 
     /**
      * 팀별 프로젝트 목록 조회 (페이징) - UI 설계서 기준 10개씩
      */
-    public ProjectPageResponse getProjects(Long teamId, int page, int size, String sortBy, String sortDirection) {
-        // UI 설계서: 페이징 당 프로젝트 10개씩 표시
-        size = Math.min(size, 10);
-        
-        Pageable pageable = createPageable(page, size, sortBy, sortDirection);
-        Page<Project> projectPage = projectRepository.findByTeamIdOrderByIdDesc(teamId, pageable);
+    public List<ProjectResponse> getProjects(Pageable pageable, Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
 
-        Page<ProjectResponse> responsePage = projectPage.map(ProjectResponse::from);
-        return ProjectPageResponse.from(responsePage);
+        Team team = teamMemberRepository.findByEmail(user.getEmail())
+                .orElseThrow(TeamMemberNotMappedException::new)
+                .getTeam();
+
+        Page<Project> projectPage = projectRepository.findByTeam(team, pageable);
+
+        return getProjectResponseList(projectPage);
+    }
+
+    private List<ProjectResponse> getProjectResponseList(Page<Project> projectList) {
+        return projectList.stream()
+                .map(p -> new ProjectResponse(
+                        p.getId(),
+                        p.getName(),
+                        p.getStartDate(),
+                        p.getEndDate(),
+                        p.calculateStatus()
+                ))
+                .toList();
     }
 
     /**
      * 프로젝트 수정 (파일 포함/미포함 통합)
      */
     @Transactional
-    public ProjectResponse updateProject(Long projectId, MultipartProjectUpdateRequest request) {
-        Project project = findProjectById(projectId);
+    public ProjectDetailResponse updateProject(ProjectUpdateRequest request, Long userId) {
 
         // 팀장님 스타일: Service에서 직접 예외 검증 및 throw
-        validateProjectUpdateInfo(request);
+        validateProjectInfo(request);
         
         // 새 파일이 있는 경우에만 파일 검증
-        if (request.hasNewFiles()) {
-            validateFileUploadForUpdate(request);
+        if (!request.getFiles().isEmpty()) {
+            validateFileUpload(request.getFiles());
+        }
+
+        Users user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        Team team = teamMemberRepository.findByEmail(user.getEmail())
+                .orElseThrow(TeamMemberNotMappedException::new)
+                .getTeam();
+
+        Project project = projectRepository.findById(request.getId())
+                .orElseThrow(ProjectNotFoundException::new);
+
+        if (project.getTeam() != team) {
+            throw new UserHasNoAuthorityException();
         }
 
         // 기본 정보 수정
         updateProjectFields(project, request);
 
         // 파일 삭제 처리
-        if (request.hasFilesToDelete()) {
-            List<Long> deleteFileIds = request.getValidDeleteFileIds();
+        if (!request.getDeleteFileIds().isEmpty()) {
+            List<Long> deleteFileIds = request.getDeleteFileIds();
             for (Long fileId : deleteFileIds) {
                 try {
                     projectFileService.deleteProjectFile(fileId);
-                    log.info("파일 삭제 완료 - 파일 ID: {}", fileId);
                 } catch (Exception e) {
-                    log.warn("파일 삭제 실패 - 파일 ID: {}, 에러: {}", fileId, e.getMessage());
+                    throw new FileDeleteFailedException();
                 }
             }
         }
 
         // 새 파일 업로드 처리
-        if (request.hasNewFiles()) {
-            List<MultipartFile> newFiles = request.getValidNewFiles();
+        if (!request.getFiles().isEmpty()) {
+            List<MultipartFile> newFiles = request.getFiles();
+            validateFileUpload(newFiles);
             try {
-                List<ProjectFile> uploadedFiles = projectFileService.uploadProjectFiles(projectId, newFiles);
-                log.info("새 파일 업로드 성공 - 프로젝트 ID: {}, 업로드된 파일 수: {}", 
-                        projectId, uploadedFiles.size());
+                projectFileService.uploadProjectFiles(project, newFiles);
             } catch (Exception e) {
-                log.warn("새 파일 업로드 실패 (프로젝트 수정은 완료) - 프로젝트 ID: {}, 에러: {}", 
-                        projectId, e.getMessage());
-                // 파일 업로드 실패해도 프로젝트 수정은 완료된 상태로 계속 진행
+                throw new FileUploadFailedException();
             }
         }
 
-        String updateInfo = buildUpdateLogInfo(request);
-        log.info("프로젝트 수정 완료{} - ID: {}", updateInfo, projectId);
-
-        // 최신 상태로 다시 조회 (파일 정보 포함)
-        Project refreshedProject = findProjectById(projectId);
-        return ProjectResponse.from(refreshedProject);
+        return ProjectDetailResponse.from(projectRepository.save(project));
     }
 
     /**
@@ -155,14 +178,12 @@ public class ProjectService {
         // 연관된 모든 파일 먼저 삭제
         try {
             projectFileService.deleteAllProjectFiles(projectId);
-            log.info("프로젝트 파일 일괄 삭제 완료 - 프로젝트 ID: {}", projectId);
         } catch (Exception e) {
-            log.warn("프로젝트 파일 삭제 중 오류 발생 - 프로젝트 ID: {}, 에러: {}", projectId, e.getMessage());
+            throw new FileDeleteFailedException();
         }
         
         // 프로젝트 삭제
         projectRepository.delete(project);
-        log.info("프로젝트 삭제 완료 - ID: {}", projectId);
     }
 
     // ========== 팀장님 스타일: Service에서 직접 검증 및 예외 throw ==========
@@ -170,22 +191,14 @@ public class ProjectService {
     /**
      * 프로젝트 기본 정보 검증 (생성 시)
      */
-    private void validateProjectBasicInfo(MultipartProjectCreateRequest request) {
+    private void validateProjectInfo(ProjectCreateRequest request) {
         validateProjectName(request.getName());
         validateProjectDescription(request.getDescription());
     }
 
-    /**
-     * 프로젝트 수정 정보 검증
-     */
-    private void validateProjectUpdateInfo(MultipartProjectUpdateRequest request) {
-        // 수정 시에는 null이 아닌 경우에만 검증
-        if (request.getName() != null) {
-            validateProjectName(request.getName());
-        }
-        if (request.getDescription() != null) {
-            validateProjectDescription(request.getDescription());
-        }
+    private void validateProjectInfo(ProjectUpdateRequest request) {
+        validateProjectName(request.getName());
+        validateProjectDescription(request.getDescription());
     }
 
     /**
@@ -218,23 +231,34 @@ public class ProjectService {
     /**
      * 파일 업로드 검증 (생성 시)
      */
-    private void validateFileUpload(MultipartProjectCreateRequest request) {
-        List<MultipartFile> validFiles = request.getValidFiles();
+    private List<MultipartFile> validateFileUpload(List<MultipartFile> files) {
+        List<MultipartFile> validFiles = getValidFiles(files);
         
         validateFileCount(validFiles);
         validateFileSizes(validFiles);
-        validateFileFormats(request.getInvalidFileFormats());
+        validateFileFormats(getInvalidFileFormats(validFiles));
+
+        return validFiles;
     }
 
-    /**
-     * 파일 업로드 검증 (수정 시)
-     */
-    private void validateFileUploadForUpdate(MultipartProjectUpdateRequest request) {
-        List<MultipartFile> newFiles = request.getValidNewFiles();
-        
-        validateFileCount(newFiles);
-        validateFileSizes(newFiles);
-        validateFileFormatsForUpdate(newFiles);
+    public List<MultipartFile> getValidFiles(List<MultipartFile> files) {
+        if (files == null) return List.of();
+        return files.stream()
+                .filter(file -> file != null && !file.isEmpty())
+                .toList();
+    }
+
+    public List<String> getInvalidFileFormats(List<MultipartFile> files) {
+        return files.stream()
+                .map(MultipartFile::getOriginalFilename)
+                .filter(originalFilename -> {
+                    if (originalFilename == null) return true;
+                    String extension = originalFilename.toLowerCase();
+                    return !extension.endsWith(".docx") &&
+                            !extension.endsWith(".xlsx") &&
+                            !extension.endsWith(".txt");
+                })
+                .toList();
     }
 
     /**
@@ -255,7 +279,7 @@ public class ProjectService {
         for (MultipartFile file : files) {
             if (file.getSize() > MAX_FILE_SIZE) {
                 String formattedSize = formatFileSize(file.getSize());
-                throw new FileSizeExceededException(file.getOriginalFilename(), formattedSize);
+                throw new FileSizeExceededException();
             }
         }
     }
@@ -265,38 +289,8 @@ public class ProjectService {
      */
     private void validateFileFormats(List<String> invalidFiles) {
         if (!invalidFiles.isEmpty()) {
-            throw new FileFormatNotSupportedException(String.join(", ", invalidFiles));
+            throw new FileFormatNotSupportedException();
         }
-    }
-
-    /**
-     * 파일 형식 검증 (수정 시)
-     */
-    private void validateFileFormatsForUpdate(List<MultipartFile> files) {
-        List<String> invalidFiles = files.stream()
-                .filter(file -> !isAllowedFileExtension(file.getOriginalFilename()))
-                .map(MultipartFile::getOriginalFilename)
-                .toList();
-                
-        if (!invalidFiles.isEmpty()) {
-            throw new FileFormatNotSupportedException(String.join(", ", invalidFiles));
-        }
-    }
-
-    /**
-     * 허용된 파일 확장자 검증
-     */
-    private boolean isAllowedFileExtension(String filename) {
-        if (filename == null) return false;
-        String extension = filename.toLowerCase();
-        String[] allowedExtensions = {".docx", ".xlsx", ".txt"};
-        
-        for (String allowed : allowedExtensions) {
-            if (extension.endsWith(allowed)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -308,25 +302,6 @@ public class ProjectService {
         return String.format("%.1fMB", size / (1024.0 * 1024.0));
     }
 
-    /**
-     * 수정 로그 정보 생성
-     */
-    private String buildUpdateLogInfo(MultipartProjectUpdateRequest request) {
-        StringBuilder info = new StringBuilder();
-        
-        if (request.hasNewFiles()) {
-            info.append(" (새 파일 ").append(request.getValidNewFiles().size()).append("개 추가)");
-        }
-        if (request.hasFilesToDelete()) {
-            info.append(" (파일 ").append(request.getValidDeleteFileIds().size()).append("개 삭제)");
-        }
-        if (info.length() == 0) {
-            info.append(" (파일 변경 없음)");
-        }
-        
-        return info.toString();
-    }
-
     // === Private Helper Methods ===
 
     private Project findProjectById(Long projectId) {
@@ -334,52 +309,19 @@ public class ProjectService {
                 .orElseThrow(ProjectNotFoundException::new);
     }
 
-    private void updateProjectFields(Project project, MultipartProjectUpdateRequest request) {
-        // 날짜 유효성 검증
-        LocalDateTime startDate = request.getStartDate() != null ? request.getStartDate() : project.getStartDate();
-        LocalDateTime endDate = request.getEndDate() != null ? request.getEndDate() : project.getEndDate();
-        validateDateRange(startDate, endDate);
-
+    private void updateProjectFields(Project project, ProjectUpdateRequest request) {
         // 기본 정보 업데이트
-        if (request.hasNameUpdate() || request.hasDescriptionUpdate()) {
-            project.updateBasicInfo(request.getName(), request.getDescription());
+        if (!request.getName().isEmpty()) {
+            project.setName(request.getName());
+        }
+        if (!request.getDescription().isEmpty()) {
+            project.setDescription(request.getDescription());
         }
 
         // 날짜 업데이트
-        if (request.hasDateUpdate()) {
+        if (request.getStartDate() != null || request.getEndDate() != null) {
+            validateDateRange(request.getStartDate(), request.getEndDate());
             project.updateDates(request.getStartDate(), request.getEndDate());
         }
-
-        // 팀 업데이트
-        if (request.hasTeamIdUpdate()) {
-            project.updateTeam(request.getTeamId());
-        }
-    }
-
-    private Pageable createPageable(int page, int size, String sortBy, String sortDirection) {
-        // 페이지 크기 제한 (UI 설계서: 최대 10개)
-        size = Math.min(size, 10);
-        
-        // 정렬 방향 설정
-        Sort.Direction direction = "asc".equalsIgnoreCase(sortDirection) ? 
-                Sort.Direction.ASC : Sort.Direction.DESC;
-        
-        // 정렬 필드 설정 (기본값: id)
-        String sortField = getSortField(sortBy);
-        Sort sort = Sort.by(direction, sortField);
-
-        return PageRequest.of(page, size, sort);
-    }
-
-    private String getSortField(String sortBy) {
-        return switch (sortBy) {
-            case "name", "projectName" -> "name"; // projectName도 name으로 매핑
-            case "startDate" -> "startDate";
-            case "endDate" -> "endDate";
-            case "teamId" -> "teamId";
-            // status는 동적 계산되므로 정렬 불가, id로 대체
-            case "status" -> "id";
-            default -> "id";
-        };
     }
 }

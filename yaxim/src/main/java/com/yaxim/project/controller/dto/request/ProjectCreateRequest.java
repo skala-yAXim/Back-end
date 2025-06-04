@@ -1,32 +1,41 @@
 package com.yaxim.project.controller.dto.request;
 
-import com.yaxim.project.entity.Project;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
- * JSON 방식 프로젝트 생성 요청 DTO
- * application/json Content-Type으로 사용
+ * 프로젝트 요청 DTO의 공통 필드를 담는 베이스 클래스
+ * JSON과 Multipart 요청에서 공통으로 사용되는 필드들을 정의
  */
 @Getter
-@SuperBuilder
-@NoArgsConstructor
-@Schema(description = "프로젝트 생성 요청 (JSON)")
-public class ProjectCreateRequest extends BaseProjectRequest {
+@AllArgsConstructor
+@Schema(description = "프로젝트 요청 베이스 DTO")
+public class ProjectCreateRequest {
 
-    /**
-     * 엔티티 변환 메서드
-     * @return Project 엔티티 객체
-     */
-    public Project toEntity() {
-        return Project.builder()
-                .name(this.getTrimmedName())
-                .teamId(this.getTeamId())
-                .startDate(this.getStartDate())
-                .endDate(this.getEndDate())
-                .description(this.getDescription())
-                .build();
-    }
+    @NotBlank(message = "프로젝트명은 필수입니다.")
+    private String name;
+
+    @NotNull(message = "시작 시각은 필수 입력값입니다.")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime startDate;
+
+    @NotNull(message = "종료 시각은 필수 입력값입니다.")
+    @Future(message = "종료 시각은 현재 시각 이후입니다.")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime endDate;
+
+    @Size(max = 1000, message = "프로젝트 설명은 1000자 이하여야 합니다.")
+    private String description;
+
+    private List<MultipartFile> files;
 }
