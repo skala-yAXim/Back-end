@@ -2,13 +2,11 @@ package com.yaxim.project.service;
 
 import com.yaxim.project.controller.dto.request.MultipartProjectCreateRequest;
 import com.yaxim.project.controller.dto.request.MultipartProjectUpdateRequest;
-import com.yaxim.project.controller.dto.request.ProjectCreateRequest;
-import com.yaxim.project.controller.dto.request.ProjectUpdateRequest;
 import com.yaxim.project.controller.dto.response.ProjectPageResponse;
 import com.yaxim.project.controller.dto.response.ProjectResponse;
 import com.yaxim.project.entity.Project;
 import com.yaxim.project.entity.ProjectFile;
-import com.yaxim.project.entity.exception.ProjectNotFoundException;
+import com.yaxim.project.exception.*;
 import com.yaxim.project.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +16,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -33,34 +31,24 @@ public class ProjectService {
     private final ProjectFileService projectFileService;
 
     /**
-     * 프로젝트 생성
+     * 프로젝트 생성 (파일 포함/미포함 통합)
      */
     @Transactional
-    public ProjectResponse createProject(ProjectCreateRequest request) {
-        // 날짜 유효성 검증
+    public ProjectResponse createProject(MultipartProjectCreateRequest request) {
+        // 팀장님 스타일: Service에서 직접 예외 검증 및 throw
+        validateProjectBasicInfo(request);
         validateDateRange(request.getStartDate(), request.getEndDate());
-
-        Project project = request.toEntity();
-        Project savedProject = projectRepository.save(project);
-
-        log.info("프로젝트 생성 완료 - ID: {}, 프로젝트명: {}", savedProject.getId(), savedProject.getName());
-
-        return ProjectResponse.from(savedProject);
-    }
-
-    /**
-     * 프로젝트 생성 (파일 포함)
-     */
-    @Transactional
-    public ProjectResponse createProjectWithFiles(MultipartProjectCreateRequest request) {
-        // 날짜 유효성 검증
-        validateDateRange(request.getStartDate(), request.getEndDate());
+        
+        // 파일이 있는 경우에만 파일 검증
+        if (request.hasFiles()) {
+            validateFileUpload(request);
+        }
 
         // 프로젝트 생성
         Project project = request.toEntity();
         Project savedProject = projectRepository.save(project);
 
-        // 파일 업로드 처리
+        // 파일 업로드 처리 (파일이 있는 경우만)
         if (request.hasFiles()) {
             List<MultipartFile> validFiles = request.getValidFiles();
             try {
@@ -74,7 +62,8 @@ public class ProjectService {
             }
         }
 
-        log.info("프로젝트 생성 완료 (파일 포함) - ID: {}, 프로젝트명: {}", savedProject.getId(), savedProject.getName());
+        String fileInfo = request.hasFiles() ? " (파일 " + request.getValidFiles().size() + "개 포함)" : " (파일 없음)";
+        log.info("프로젝트 생성 완료{} - ID: {}, 프로젝트명: {}", fileInfo, savedProject.getId(), savedProject.getName());
 
         // 최신 상태로 다시 조회 (파일 정보 포함)
         Project refreshedProject = findProjectById(savedProject.getId());
@@ -104,34 +93,22 @@ public class ProjectService {
     }
 
     /**
-     * 프로젝트 수정
+     * 프로젝트 수정 (파일 포함/미포함 통합)
      */
     @Transactional
-    public ProjectResponse updateProject(Long projectId, ProjectUpdateRequest request) {
+    public ProjectResponse updateProject(Long projectId, MultipartProjectUpdateRequest request) {
         Project project = findProjectById(projectId);
 
-        // 날짜 유효성 검증
-        LocalDateTime startDate = request.hasStartDate() ? request.getStartDate() : project.getStartDate();
-        LocalDateTime endDate = request.hasEndDate() ? request.getEndDate() : project.getEndDate();
-        validateDateRange(startDate, endDate);
-
-        // 프로젝트 정보 업데이트
-        updateProjectFields(project, request);
-
-        log.info("프로젝트 수정 완료 - ID: {}", projectId);
-
-        return ProjectResponse.from(project);
-    }
-
-    /**
-     * 프로젝트 전체 수정 (파일 포함)
-     */
-    @Transactional
-    public ProjectResponse updateProjectWithFiles(Long projectId, MultipartProjectUpdateRequest request) {
-        Project project = findProjectById(projectId);
+        // 팀장님 스타일: Service에서 직접 예외 검증 및 throw
+        validateProjectUpdateInfo(request);
+        
+        // 새 파일이 있는 경우에만 파일 검증
+        if (request.hasNewFiles()) {
+            validateFileUploadForUpdate(request);
+        }
 
         // 기본 정보 수정
-        updateProjectFieldsFromMultipartRequest(project, request);
+        updateProjectFields(project, request);
 
         // 파일 삭제 처리
         if (request.hasFilesToDelete()) {
@@ -160,7 +137,8 @@ public class ProjectService {
             }
         }
 
-        log.info("프로젝트 전체 수정 완료 - ID: {}", projectId);
+        String updateInfo = buildUpdateLogInfo(request);
+        log.info("프로젝트 수정 완료{} - ID: {}", updateInfo, projectId);
 
         // 최신 상태로 다시 조회 (파일 정보 포함)
         Project refreshedProject = findProjectById(projectId);
@@ -187,6 +165,168 @@ public class ProjectService {
         log.info("프로젝트 삭제 완료 - ID: {}", projectId);
     }
 
+    // ========== 팀장님 스타일: Service에서 직접 검증 및 예외 throw ==========
+
+    /**
+     * 프로젝트 기본 정보 검증 (생성 시)
+     */
+    private void validateProjectBasicInfo(MultipartProjectCreateRequest request) {
+        validateProjectName(request.getName());
+        validateProjectDescription(request.getDescription());
+    }
+
+    /**
+     * 프로젝트 수정 정보 검증
+     */
+    private void validateProjectUpdateInfo(MultipartProjectUpdateRequest request) {
+        // 수정 시에는 null이 아닌 경우에만 검증
+        if (request.getName() != null) {
+            validateProjectName(request.getName());
+        }
+        if (request.getDescription() != null) {
+            validateProjectDescription(request.getDescription());
+        }
+    }
+
+    /**
+     * 프로젝트명 검증
+     */
+    private void validateProjectName(String name) {
+        if (name != null && name.length() > 100) {
+            throw new ProjectNameTooLongException(name.length());
+        }
+    }
+
+    /**
+     * 프로젝트 설명 검증
+     */
+    private void validateProjectDescription(String description) {
+        if (description != null && description.length() > 1000) {
+            throw new ProjectDescriptionTooLongException(description.length());
+        }
+    }
+
+    /**
+     * 날짜 범위 검증 (팀장님 스타일로 변경)
+     */
+    private void validateDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
+            throw new ProjectDateRangeInvalidException();
+        }
+    }
+
+    /**
+     * 파일 업로드 검증 (생성 시)
+     */
+    private void validateFileUpload(MultipartProjectCreateRequest request) {
+        List<MultipartFile> validFiles = request.getValidFiles();
+        
+        validateFileCount(validFiles);
+        validateFileSizes(validFiles);
+        validateFileFormats(request.getInvalidFileFormats());
+    }
+
+    /**
+     * 파일 업로드 검증 (수정 시)
+     */
+    private void validateFileUploadForUpdate(MultipartProjectUpdateRequest request) {
+        List<MultipartFile> newFiles = request.getValidNewFiles();
+        
+        validateFileCount(newFiles);
+        validateFileSizes(newFiles);
+        validateFileFormatsForUpdate(newFiles);
+    }
+
+    /**
+     * 파일 개수 검증 (최대 5개)
+     */
+    private void validateFileCount(List<MultipartFile> files) {
+        if (files.size() > 5) {
+            throw new FileCountExceededException(files.size());
+        }
+    }
+
+    /**
+     * 파일 크기 검증 (각 파일 최대 50MB)
+     */
+    private void validateFileSizes(List<MultipartFile> files) {
+        final long MAX_FILE_SIZE = 50 * 1024 * 1024L; // 50MB
+        
+        for (MultipartFile file : files) {
+            if (file.getSize() > MAX_FILE_SIZE) {
+                String formattedSize = formatFileSize(file.getSize());
+                throw new FileSizeExceededException(file.getOriginalFilename(), formattedSize);
+            }
+        }
+    }
+
+    /**
+     * 파일 형식 검증 (생성 시)
+     */
+    private void validateFileFormats(List<String> invalidFiles) {
+        if (!invalidFiles.isEmpty()) {
+            throw new FileFormatNotSupportedException(String.join(", ", invalidFiles));
+        }
+    }
+
+    /**
+     * 파일 형식 검증 (수정 시)
+     */
+    private void validateFileFormatsForUpdate(List<MultipartFile> files) {
+        List<String> invalidFiles = files.stream()
+                .filter(file -> !isAllowedFileExtension(file.getOriginalFilename()))
+                .map(MultipartFile::getOriginalFilename)
+                .toList();
+                
+        if (!invalidFiles.isEmpty()) {
+            throw new FileFormatNotSupportedException(String.join(", ", invalidFiles));
+        }
+    }
+
+    /**
+     * 허용된 파일 확장자 검증
+     */
+    private boolean isAllowedFileExtension(String filename) {
+        if (filename == null) return false;
+        String extension = filename.toLowerCase();
+        String[] allowedExtensions = {".docx", ".xlsx", ".txt"};
+        
+        for (String allowed : allowedExtensions) {
+            if (extension.endsWith(allowed)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 파일 크기를 읽기 쉬운 형태로 포맷
+     */
+    private String formatFileSize(long size) {
+        if (size < 1024) return size + "B";
+        if (size < 1024 * 1024) return String.format("%.1fKB", size / 1024.0);
+        return String.format("%.1fMB", size / (1024.0 * 1024.0));
+    }
+
+    /**
+     * 수정 로그 정보 생성
+     */
+    private String buildUpdateLogInfo(MultipartProjectUpdateRequest request) {
+        StringBuilder info = new StringBuilder();
+        
+        if (request.hasNewFiles()) {
+            info.append(" (새 파일 ").append(request.getValidNewFiles().size()).append("개 추가)");
+        }
+        if (request.hasFilesToDelete()) {
+            info.append(" (파일 ").append(request.getValidDeleteFileIds().size()).append("개 삭제)");
+        }
+        if (info.length() == 0) {
+            info.append(" (파일 변경 없음)");
+        }
+        
+        return info.toString();
+    }
+
     // === Private Helper Methods ===
 
     private Project findProjectById(Long projectId) {
@@ -194,27 +334,7 @@ public class ProjectService {
                 .orElseThrow(ProjectNotFoundException::new);
     }
 
-    private void validateDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
-            throw new IllegalArgumentException("종료일은 시작일보다 이후여야 합니다.");
-        }
-    }
-
-    private void updateProjectFields(Project project, ProjectUpdateRequest request) {
-        if (request.hasName() || request.hasDescription()) {
-            project.updateBasicInfo(request.getName(), request.getDescription());
-        }
-
-        if (request.hasStartDate() || request.hasEndDate()) {
-            project.updateDates(request.getStartDate(), request.getEndDate());
-        }
-
-        if (request.hasTeamId()) {
-            project.updateTeam(request.getTeamId());
-        }
-    }
-
-    private void updateProjectFieldsFromMultipartRequest(Project project, MultipartProjectUpdateRequest request) {
+    private void updateProjectFields(Project project, MultipartProjectUpdateRequest request) {
         // 날짜 유효성 검증
         LocalDateTime startDate = request.getStartDate() != null ? request.getStartDate() : project.getStartDate();
         LocalDateTime endDate = request.getEndDate() != null ? request.getEndDate() : project.getEndDate();
