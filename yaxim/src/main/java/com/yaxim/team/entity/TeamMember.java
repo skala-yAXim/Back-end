@@ -1,7 +1,6 @@
 package com.yaxim.team.entity;
 
 import com.yaxim.user.entity.UserRole;
-import com.yaxim.user.entity.Users;
 import jakarta.persistence.*;
 import lombok.*;
 
