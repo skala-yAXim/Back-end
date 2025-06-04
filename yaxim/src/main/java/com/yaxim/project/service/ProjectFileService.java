@@ -2,8 +2,8 @@ package com.yaxim.project.service;
 
 import com.yaxim.project.entity.Project;
 import com.yaxim.project.entity.ProjectFile;
-import com.yaxim.project.entity.exception.ProjectFileNotFoundException;
-import com.yaxim.project.entity.exception.ProjectNotFoundException;
+import com.yaxim.project.exception.ProjectFileNotFoundException;
+import com.yaxim.project.exception.ProjectNotFoundException;
 import com.yaxim.project.repository.ProjectFileRepository;
 import com.yaxim.project.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.yaxim.project.entity.exception;
+package com.yaxim.project.exception;
 
 import com.yaxim.global.error.model.CustomException;
 import com.yaxim.global.error.model.ErrorCode;
