@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,13 +27,13 @@ public class ProjectUpdateRequest {
     private String name;
 
     @NotNull(message = "시작 시각은 필수 입력값입니다.")
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime startDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate;
 
     @NotNull(message = "종료 시각은 필수 입력값입니다.")
-    @Future(message = "종료 시각은 현재 시각 이후입니다.")
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime endDate;
+    @Future(message = "종료 시각은 현재 날짜 이후입니다.")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate;
 
     @Size(max = 1000, message = "프로젝트 설명은 1000자 이하여야 합니다.")
     private String description;
