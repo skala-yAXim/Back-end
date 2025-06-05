@@ -3,14 +3,18 @@ package com.yaxim.global.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yaxim.global.auth.CookieService;
 import com.yaxim.global.auth.jwt.JwtAuthEntryPoint;
+import com.yaxim.global.auth.jwt.JwtAuthentication;
 import com.yaxim.global.auth.jwt.JwtAuthenticationFilter;
 import com.yaxim.global.auth.jwt.JwtProvider;
+import com.yaxim.global.auth.jwt.exception.TokenNotProvidedException;
+import com.yaxim.global.auth.oauth2.CustomOAuth2UserService;
 import com.yaxim.global.auth.oauth2.CustomOidcUserService;
 import com.yaxim.global.auth.oauth2.OAuth2FailureHandler;
 import com.yaxim.global.auth.oauth2.OAuth2SuccessHandler;
 import com.yaxim.global.error.ErrorHandleFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -27,13 +31,14 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
@@ -42,6 +47,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
@@ -51,7 +57,6 @@ public class SecurityConfig {
     private final ObjectMapper objectMapper;
     private final ApplicationContext applicationContext;
     private final CookieService cookieService;
-    private final CustomOidcUserService oidcUserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
 
@@ -127,7 +132,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService, CustomOidcUserService customOidcUserService) throws Exception {
         return http
                 .cors(httpSecurityCorsConfigurer -> corsConfigurationSource())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -140,7 +145,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/webjars/**", "/swagger-resources/**", "/error", "/favicon.ico").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/login/**").permitAll()
+                        .requestMatchers("/login*").permitAll()
                         .requestMatchers("/auth/reissue").permitAll()
                         .requestMatchers("/projects/**").permitAll() // 🔥 테스트용 임시 추가
                         .requestMatchers("/auth/logout").permitAll()
@@ -150,8 +155,23 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(errorHandleFilter(), JwtAuthenticationFilter.class)
                 .oauth2Login(oauth ->
-                        oauth.userInfoEndpoint(c ->
-                                c.oidcUserService(oidcUserService)
+                        oauth.userInfoEndpoint(u ->
+                                u.userService(userRequest -> {
+                                            String registrationId = userRequest.getClientRegistration().getRegistrationId();
+
+                                            // GitHub (OAuth2)
+                                            if ("github".equals(registrationId)) {
+                                                return customOAuth2UserService.loadUser(userRequest);
+                                            }
+
+                                            // Azure AD (OIDC)
+                                            if ("azure".equals(registrationId)) {
+                                                return customOidcUserService.loadUser((OidcUserRequest) userRequest);
+                                            }
+
+                                            throw new OAuth2AuthenticationException("Unsupported OAuth provider: " + registrationId);
+
+                                        })
                                 )
                                 .successHandler(oAuth2SuccessHandler)
                                 .failureHandler(oAuth2FailureHandler)
