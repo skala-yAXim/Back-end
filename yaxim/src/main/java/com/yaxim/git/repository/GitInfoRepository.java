@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface GitInfoRepository extends JpaRepository<GitInfo, Long> {
     Optional<GitInfo> findByUser(Users user);
+    Optional<GitInfo> findByGitId(String gitId);
 }
