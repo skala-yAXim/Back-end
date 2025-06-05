@@ -4,10 +4,7 @@ import com.yaxim.global.graph.GraphTeamMemberResponse;
 import com.yaxim.team.repository.TeamMemberRepository;
 import com.yaxim.user.entity.UserRole;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +21,8 @@ public class Team {
     private String id;
     private String name;
     private String description;
+    @Setter
+    private String installationId;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TeamMember> members;

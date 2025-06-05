@@ -36,7 +36,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 "/v3/api-docs/**",
                 "/favicon.ico",
                 "/error",
-                "/login*",
+                "/login",
+                "/login/error",
+                "/login/oauth2/code/azure",
+                "/git/webhook",
                 "/auth/reissue",
                 "/auth/logout"
         };

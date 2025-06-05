@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -64,13 +65,24 @@ public class ProjectService {
                 .endDate(request.getEndDate())
                 .build();
 
+        project = projectRepository.save(project);
+
+        log.info(project.getId().toString());
+
         List<MultipartFile> files = request.getFiles();
 
         // 파일 업로드 처리 (파일이 있는 경우만)
-        if (!files.isEmpty()) {
-            List<MultipartFile> validFiles = validateFileUpload(files);
-            projectFileService.uploadProjectFiles(project, validFiles);
+        if (files.isEmpty() || files.stream().allMatch(MultipartFile::isEmpty)) {
+            log.info("file is empty");
+            throw new FileShouldNotBeNullException();
         }
+
+        log.info("file is not empty");
+        for (MultipartFile file : files) {
+            log.info(file.getOriginalFilename());
+        }
+        List<MultipartFile> validFiles = validateFileUpload(files);
+        projectFileService.uploadProjectFiles(project, validFiles);
 
         return ProjectDetailResponse.from(projectRepository.save(project));
     }
@@ -222,7 +234,7 @@ public class ProjectService {
     /**
      * 날짜 범위 검증 (팀장님 스타일로 변경)
      */
-    private void validateDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+    private void validateDateRange(LocalDate startDate, LocalDate endDate) {
         if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
             throw new ProjectDateRangeInvalidException();
         }
