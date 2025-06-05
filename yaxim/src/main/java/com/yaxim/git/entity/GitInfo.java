@@ -24,6 +24,8 @@ public class GitInfo {
     private String gitId;
     @Setter
     private String gitEmail;
+    @Setter
+    private String gitUrl;
 
     public GitInfo(Users user) {
         this.user = user;
