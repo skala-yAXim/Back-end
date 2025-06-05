@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +33,9 @@ public class Project {
     private Team team;
 
     @NotNull
-    private LocalDateTime startDate;
+    private LocalDate startDate;
     @NotNull
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     @Setter
     @Column(length = 1000)
@@ -45,7 +46,7 @@ public class Project {
     @Builder.Default
     private List<ProjectFile> projectFiles = new ArrayList<>();
 
-    public Project(String name, Team team, LocalDateTime startDate, LocalDateTime endDate, String description) {
+    public Project(String name, Team team, LocalDate startDate, LocalDate endDate, String description) {
         this.name = name;
         this.team = team;
         this.startDate = startDate;
@@ -53,7 +54,7 @@ public class Project {
         this.description = description;
     }
 
-    public void updateDates(LocalDateTime startDate, LocalDateTime endDate) {
+    public void updateDates(LocalDate startDate, LocalDate endDate) {
         if (endDate != null && startDate != null && endDate.isBefore(startDate)) {
             throw new IllegalArgumentException("종료일은 시작일보다 이후여야 합니다.");
         }
@@ -74,7 +75,7 @@ public class Project {
 
     // 동적 상태 계산 메서드 (팀장님 요구사항)
     public ProjectStatus calculateStatus() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate now = LocalDate.now();
         
         if (startDate != null && now.isBefore(startDate)) {
             return ProjectStatus.PLANNING;
