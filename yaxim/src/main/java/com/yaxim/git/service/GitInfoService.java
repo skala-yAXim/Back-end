@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class GitInfoService {
         info.setGitId(gitInfo.getGitId());
         info.setGitEmail(gitInfo.getGitEmail());
         info.setGitUrl(gitInfo.getGitUrl());
+        info.setUpdatedAt(LocalDateTime.now());
 
         gitInfoRepository.save(info);
     }
@@ -44,6 +47,8 @@ public class GitInfoService {
         GitInfo info = gitInfoRepository.findByUser(user)
                 .orElseThrow(GitInfoNotFoundException::new);
         return new GitInfoResponse(
+                info.getCreatedAt(),
+                info.getUpdatedAt(),
                 info.getGitId(),
                 info.getGitEmail(),
                 info.getGitUrl()

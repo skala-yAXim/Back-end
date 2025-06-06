@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -77,6 +78,8 @@ public class TeamService {
                         graphTeam.description
                 )));
 
+        team.setUpdatedAt(LocalDateTime.now());
+
         if (isNewTeam) {
             for (GraphTeamMemberResponse.Members m : graphTeamMembers) {
                 UserRole role = m.roles.isEmpty() ? UserRole.MEMBER : UserRole.LEADER;
@@ -92,6 +95,8 @@ public class TeamService {
     private TeamResponse getTeamResponse(Team team) {
         return new TeamResponse(
                 team.getId(),
+                team.getCreatedAt(),
+                team.getUpdatedAt(),
                 team.getName(),
                 team.getDescription()
         );
