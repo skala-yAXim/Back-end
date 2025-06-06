@@ -52,7 +52,8 @@ public class GitInfoService {
                 info.getUpdatedAt(),
                 info.getGitId(),
                 info.getGitEmail(),
-                info.getGitUrl()
+                info.getGitUrl(),
+                info.getAvatarUrl()
         );
     }
 
