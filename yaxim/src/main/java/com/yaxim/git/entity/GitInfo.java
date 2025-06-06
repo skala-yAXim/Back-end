@@ -27,6 +27,8 @@ public class GitInfo extends BaseEntity {
     private String gitEmail;
     @Setter
     private String gitUrl;
+    @Setter
+    private String avatarUrl;
 
     public GitInfo(Users user) {
         this.user = user;
