@@ -23,6 +23,9 @@ public class ProjectDetailResponse {
     @Schema(description = "프로젝트 ID", example = "1")
     private Long id;
 
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
     @Schema(description = "프로젝트명", example = "웹 애플리케이션 개발")
     private String name;
 
@@ -44,6 +47,8 @@ public class ProjectDetailResponse {
     public static ProjectDetailResponse from(Project project) {
         return ProjectDetailResponse.builder()
                 .id(project.getId())
+                .createdAt(project.getCreatedAt())
+                .updatedAt(project.getUpdatedAt())
                 .name(project.getName())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())

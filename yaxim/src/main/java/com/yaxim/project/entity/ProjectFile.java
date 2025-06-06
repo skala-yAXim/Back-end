@@ -1,5 +1,6 @@
 package com.yaxim.project.entity;
 
+import com.yaxim.global.util.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "project_files")
-public class ProjectFile {
+public class ProjectFile extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,35 +55,10 @@ public class ProjectFile {
     @Column(name = "s3_object_key", length = 500)
     private String s3ObjectKey;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     // ✅ Project와의 양방향 관계 설정 (Project가 관계 주인)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        // projectId 자동 설정
-        if (this.project != null) {
-            this.projectId = this.project.getId();
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-        // projectId 동기화
-        if (this.project != null) {
-            this.projectId = this.project.getId();
-        }
-    }
 
     // 비즈니스 메서드들
     public void updateFileInfo(String originalFileName, String storedFileName, String fileUrl, 

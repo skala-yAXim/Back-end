@@ -1,6 +1,7 @@
 package com.yaxim.team.entity;
 
 import com.yaxim.global.graph.GraphTeamMemberResponse;
+import com.yaxim.global.util.BaseEntity;
 import com.yaxim.team.repository.TeamMemberRepository;
 import com.yaxim.user.entity.UserRole;
 import jakarta.persistence.*;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Team {
+public class Team extends BaseEntity {
     @Id
     private String id;
     private String name;
