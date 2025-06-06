@@ -1,5 +1,6 @@
 package com.yaxim.project.entity;
 
+import com.yaxim.global.util.BaseEntity;
 import com.yaxim.team.entity.Team;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "projects")
-public class Project {
+public class Project extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

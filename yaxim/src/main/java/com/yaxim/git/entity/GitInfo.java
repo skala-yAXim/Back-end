@@ -1,5 +1,6 @@
 package com.yaxim.git.entity;
 
+import com.yaxim.global.util.BaseEntity;
 import com.yaxim.user.entity.Users;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class GitInfo {
+public class GitInfo extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
