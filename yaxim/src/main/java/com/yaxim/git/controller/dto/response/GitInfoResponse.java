@@ -13,4 +13,5 @@ public class GitInfoResponse {
     private String gitId;
     private String gitEmail;
     private String gitUrl;
+    private String avatarUrl;
 }

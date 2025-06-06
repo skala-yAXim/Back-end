@@ -22,6 +22,7 @@ public class OAuth2UserInfo {
         private String gitId;
         private String gitEmail;
         private String gitUrl;
+        private String avatarUrl;
 
     public static OAuth2UserInfo of(String registrationId, Map<String, Object> attributes) {
         return switch (registrationId) {
@@ -51,6 +52,9 @@ public class OAuth2UserInfo {
         String login = (String) attributes.get("login");
         String email = (String) attributes.getOrDefault("email", attributes.get("notification_email"));
         String gitUrl = (String) attributes.get("html_url");
+        String avatarUrl = (String) attributes.get("avatar_url");
+
+        log.info(avatarUrl);
 
         if (email == null) {
             throw new GitEmailIsNotProvidedException();
@@ -61,6 +65,7 @@ public class OAuth2UserInfo {
                 .gitId(login)
                 .gitEmail(email)
                 .gitUrl(gitUrl)
+                .avatarUrl(avatarUrl)
                 .build();
     }
 
@@ -78,6 +83,7 @@ public class OAuth2UserInfo {
                 .gitId(gitId)
                 .gitEmail(gitEmail)
                 .gitUrl(gitUrl)
+                .avatarUrl(avatarUrl)
                 .build();
     }
 }

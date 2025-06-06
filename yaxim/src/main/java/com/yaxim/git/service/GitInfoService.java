@@ -34,6 +34,7 @@ public class GitInfoService {
         info.setGitId(gitInfo.getGitId());
         info.setGitEmail(gitInfo.getGitEmail());
         info.setGitUrl(gitInfo.getGitUrl());
+        info.setAvatarUrl(gitInfo.getAvatarUrl());
         info.setUpdatedAt(LocalDateTime.now());
 
         gitInfoRepository.save(info);
@@ -51,7 +52,8 @@ public class GitInfoService {
                 info.getUpdatedAt(),
                 info.getGitId(),
                 info.getGitEmail(),
-                info.getGitUrl()
+                info.getGitUrl(),
+                info.getAvatarUrl()
         );
     }
 
