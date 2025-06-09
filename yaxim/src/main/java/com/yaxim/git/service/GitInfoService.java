@@ -46,8 +46,19 @@ public class GitInfoService {
                 .orElseThrow(UserNotFoundException::new);
 
         GitInfo info = gitInfoRepository.findByUser(user)
-                .orElseThrow(GitInfoNotFoundException::new);
+                .orElse(new GitInfo(user));
+//                .orElseThrow(GitInfoNotFoundException::new);
+
+        if (info.getGitId() == null) {
+            return getGitResponse(false, info);
+        } else {
+            return getGitResponse(true, info);
+        }
+    }
+
+    private GitInfoResponse getGitResponse(boolean isConnected, GitInfo info) {
         return new GitInfoResponse(
+                isConnected,
                 info.getCreatedAt(),
                 info.getUpdatedAt(),
                 info.getGitId(),
@@ -74,5 +85,15 @@ public class GitInfoService {
         Team team = member.getTeam();
 
         team.setInstallationId(request.getInstallation().getId());
+    }
+
+    @Transactional
+    public void deleteGitInfo(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        GitInfo info = gitInfoRepository.findByUser(user)
+                .orElseThrow(GitInfoNotFoundException::new);
+
+        gitInfoRepository.delete(info);
     }
 }
