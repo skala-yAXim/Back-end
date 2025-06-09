@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "유저 정보 관리", description = "유저 정보를 저장, 수정, 삭제합니다.")
@@ -40,7 +41,7 @@ public class UserController {
     })
     @PatchMapping
     public ResponseEntity<UserInfoResponse> updateMyInfo(
-            @RequestBody UserInfoRequest request,
+            @RequestBody @Validated UserInfoRequest request,
             JwtAuthentication auth
     ) {
         return ResponseEntity.ok(

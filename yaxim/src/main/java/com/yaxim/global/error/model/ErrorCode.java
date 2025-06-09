@@ -39,11 +39,11 @@ public enum ErrorCode {
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM_NOT_FOUND" ),
     OIDC_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "OIDC_TOKEN_EXPIRED" ),
     TEAM_MEMBER_NOT_MAPPED(HttpStatus.NOT_FOUND, "TEAM_MEMBER_NOT_MAPPED"),
-
-    // ========== Teams Analytics 관련 에러 ==========
     TEAMS_ANALYTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAMS_ANALYTICS_NOT_FOUND"),
-    GRAPH_API_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "GRAPH_API_CALL_FAILED")
-    , ;
+    GRAPH_API_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "GRAPH_API_CALL_FAILED"),
+  
+    GIT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "GIT_INFO_NOT_FOUND" ),
+    GIT_EMAIL_IS_NOT_PROVIDED(HttpStatus.BAD_REQUEST, "GIT_EMAIL_IS_NOT_PROVIDED" ),;
 
     private final HttpStatus status;
     private final String message;

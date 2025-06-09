@@ -1,5 +1,7 @@
 package com.yaxim.global.auth.oauth2;
 
+import com.yaxim.git.entity.GitInfo;
+import com.yaxim.git.exception.GitEmailIsNotProvidedException;
 import com.yaxim.global.auth.oauth2.exception.IllegalRegistrationException;
 import com.yaxim.user.entity.UserRole;
 import com.yaxim.user.entity.Users;
@@ -17,10 +19,15 @@ import java.util.Map;
 public class OAuth2UserInfo {
         private String name;
         private String email;
+        private String gitId;
+        private String gitEmail;
+        private String gitUrl;
+        private String avatarUrl;
 
     public static OAuth2UserInfo of(String registrationId, Map<String, Object> attributes) {
         return switch (registrationId) {
             case "azure" -> ofAzure(attributes);
+            case "github" -> ofGitHub(attributes);
             default -> throw new IllegalRegistrationException();
         };
     }
@@ -40,12 +47,43 @@ public class OAuth2UserInfo {
                 .build();
     }
 
+    private static OAuth2UserInfo ofGitHub(Map<String, Object> attributes) {
+        String name = (String) attributes.get("name");
+        String login = (String) attributes.get("login");
+        String email = (String) attributes.getOrDefault("email", attributes.get("notification_email"));
+        String gitUrl = (String) attributes.get("html_url");
+        String avatarUrl = (String) attributes.get("avatar_url");
+
+        log.info(avatarUrl);
+
+        if (email == null) {
+            throw new GitEmailIsNotProvidedException();
+        }
+
+        return OAuth2UserInfo.builder()
+                .name(name)
+                .gitId(login)
+                .gitEmail(email)
+                .gitUrl(gitUrl)
+                .avatarUrl(avatarUrl)
+                .build();
+    }
+
     // Todo 권한 설정 로직 수정 필요
     public Users toEntity() {
         return Users.builder()
                 .name(name)
                 .email(email)
                 .userRole(UserRole.USER)
+                .build();
+    }
+
+    public GitInfo toGitInfo() {
+        return GitInfo.builder()
+                .gitId(gitId)
+                .gitEmail(gitEmail)
+                .gitUrl(gitUrl)
+                .avatarUrl(avatarUrl)
                 .build();
     }
 }
