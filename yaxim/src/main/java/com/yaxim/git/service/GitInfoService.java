@@ -29,8 +29,11 @@ public class GitInfoService {
 
     @Transactional
     public void updateGitInfo(Users user, GitInfo gitInfo) {
-        GitInfo info = gitInfoRepository.findByUser(user)
-                        .orElse(new GitInfo(user));
+        Users managedUser = userRepository.findById(user.getId())
+                .orElseThrow(UserNotFoundException::new);
+
+        GitInfo info = gitInfoRepository.findByUser(managedUser)
+                        .orElse(new GitInfo(managedUser));
         info.setGitId(gitInfo.getGitId());
         info.setGitEmail(gitInfo.getGitEmail());
         info.setGitUrl(gitInfo.getGitUrl());

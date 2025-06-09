@@ -42,7 +42,7 @@ public class OAuth2UserInfo {
         }
 
         return OAuth2UserInfo.builder()
-                .name((String) attributes.get("name"))
+                .name(attributes.get("family_name") + (String) attributes.get("given_name"))
                 .email(email)
                 .build();
     }
