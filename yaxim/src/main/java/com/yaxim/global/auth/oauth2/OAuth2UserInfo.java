@@ -54,8 +54,6 @@ public class OAuth2UserInfo {
         String gitUrl = (String) attributes.get("html_url");
         String avatarUrl = (String) attributes.get("avatar_url");
 
-        log.info(avatarUrl);
-
         if (email == null) {
             throw new GitEmailIsNotProvidedException();
         }

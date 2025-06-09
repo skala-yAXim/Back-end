@@ -1,4 +1,4 @@
-package com.yaxim.dashboard.controller.dto.response;
+package com.yaxim.graph.controller.dto;
 
 import lombok.Builder;
 import lombok.Getter;

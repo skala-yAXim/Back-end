@@ -1,4 +1,4 @@
-package com.yaxim.dashboard.exception;
+package com.yaxim.graph.exception;
 
 import com.yaxim.global.error.model.CustomException;
 import com.yaxim.global.error.model.ErrorCode;

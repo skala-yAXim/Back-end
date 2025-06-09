@@ -1,8 +1,8 @@
-package com.yaxim.global.graph;
+package com.yaxim.graph;
 
-import com.yaxim.dashboard.controller.dto.response.*;
 import com.yaxim.global.auth.jwt.TokenService;
 import com.yaxim.global.auth.oauth2.exception.OidcTokenExpiredException;
+import com.yaxim.graph.controller.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
