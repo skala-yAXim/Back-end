@@ -1,4 +1,4 @@
-package com.yaxim.global.graph;
+package com.yaxim.graph.controller.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

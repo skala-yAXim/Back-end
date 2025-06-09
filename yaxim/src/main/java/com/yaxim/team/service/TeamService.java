@@ -1,9 +1,9 @@
 package com.yaxim.team.service;
 
 import com.yaxim.global.auth.jwt.TokenService;
-import com.yaxim.global.graph.GraphApiService;
-import com.yaxim.global.graph.GraphTeamMemberResponse;
-import com.yaxim.global.graph.GraphTeamResponse;
+import com.yaxim.graph.GraphApiService;
+import com.yaxim.graph.controller.dto.GraphTeamMemberResponse;
+import com.yaxim.graph.controller.dto.GraphTeamResponse;
 import com.yaxim.team.controller.dto.response.TeamMemberResponse;
 import com.yaxim.team.controller.dto.response.TeamResponse;
 import com.yaxim.team.entity.Team;
@@ -64,6 +64,11 @@ public class TeamService {
     @Transactional
     public TeamResponse loadTeam(Long userId) {
         GraphTeamResponse.Team graphTeam = graphApiService.getMyFirstTeam(userId);
+
+        if (graphTeam == null) {
+            throw new TeamNotFoundException();
+        }
+
         List<GraphTeamMemberResponse.Members> graphTeamMembers = graphApiService.getMyTeamMembers(
                 graphTeam.id,
                 userId

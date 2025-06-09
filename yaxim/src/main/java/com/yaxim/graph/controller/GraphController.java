@@ -1,8 +1,8 @@
-package com.yaxim.dashboard.controller;
+package com.yaxim.graph.controller;
 
-import com.yaxim.dashboard.controller.dto.response.*;
-import com.yaxim.dashboard.service.TeamsAnalyticsService;
+import com.yaxim.graph.TeamsAnalyticsService;
 import com.yaxim.global.auth.jwt.JwtAuthentication;
+import com.yaxim.graph.controller.dto.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/dashboard")
 @RequiredArgsConstructor
-public class TeamsAnalyticsController {
+public class GraphController {
 
     private final TeamsAnalyticsService teamsAnalyticsService;
 
