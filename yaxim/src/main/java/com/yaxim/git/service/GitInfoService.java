@@ -84,4 +84,14 @@ public class GitInfoService {
 
         team.setInstallationId(request.getInstallation().getId());
     }
+
+    @Transactional
+    public void deleteGitInfo(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        GitInfo info = gitInfoRepository.findByUser(user)
+                .orElseThrow(GitInfoNotFoundException::new);
+
+        gitInfoRepository.delete(info);
+    }
 }
