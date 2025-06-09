@@ -1,18 +1,14 @@
 package com.yaxim.global.graph;
 
+import com.yaxim.dashboard.controller.dto.response.*;
 import com.yaxim.global.auth.jwt.TokenService;
 import com.yaxim.global.auth.oauth2.exception.OidcTokenExpiredException;
-import io.netty.handler.codec.http2.Http2Headers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -86,72 +82,63 @@ public class GraphApiService {
 
         return response != null && response.value != null ? response.value : List.of();
     }
-    // api 호출하는 거 여기다
+
     // Teams Analytics 관련 메서드들
-    public String getTeamsUserActivityUserDetail(Long userId, String period) {
+    public TeamsUserActivityUserDetailResponse getTeamsUserActivityUserDetail(Long userId, String period) {
         String accessToken = getAccessToken(userId);
-        String url = "/reports/getTeamsUserActivityUserDetail(period='D7')?$format=application/json";
-        log.info(url);
+        String url = "/reports/getTeamsUserActivityUserDetail(period='" + period + "')?$format=application/json";
 
         // Beta 도메인에서는 JSON으로 직접 응답
-        String jsonResponse = webClientTeams.get()
-                .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                .exchangeToMono(response -> {
-                    if (response.statusCode().value() == 302) {
-                        return Mono.justOrEmpty(response.headers().header("Location").stream().findFirst());
-                    } else {
-                        return response.bodyToMono(String.class)
-                                .doOnNext(body -> log.warn(":경고: Unexpected response: {}", body))
-                                .then(Mono.empty());
-                    }
-                })
-                .block();
-
-        log.info("✅ JSON 응답:\n{}", jsonResponse);
-        return jsonResponse;
-
-    }
-    public String getTeamsTeamActivityDetail(Long userId, String period) {
-        String accessToken = getAccessToken(userId);
-        String url = "/reports/getTeamsTeamActivityDetail(period='" + period + "')";
-        log.info(url);
-
-        // Beta 도메인에서는 JSON으로 직접 응답
-        String jsonResponse = webClientTeams.get()
+        TeamsUserActivityUserDetailResponse response = webClientTeams.get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(TeamsUserActivityUserDetailResponse.class)
                 .block();
 
-        log.info("✅ JSON 응답:\n{}", jsonResponse);
-        return jsonResponse;
+        return response;
+
     }
-
-
-    public String getTeamsUserActivityCounts(Long userId, String period) {
+    public TeamsUserActivityCountsResponse getTeamsUserActivityCounts(Long userId, String period) {
         String accessToken = getAccessToken(userId);
-        String url = "/reports/microsoft.graph.getTeamsUserActivityCounts(period='D7')";
-        log.info(url);
+        String url = "/reports/getTeamsUserActivityCounts(period='" + period + "')?$format=application/json";
 
         // Beta 도메인에서는 JSON으로 직접 응답
-        String jsonResponse = webClientTeams.get()
+        TeamsUserActivityCountsResponse response = webClientTeams.get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                .exchangeToMono(response -> {
-                    if (response.statusCode().value() == 302) {
-                        return Mono.justOrEmpty(response.headers().header("Location").stream().findFirst());
-                    } else {
-                        return response.bodyToMono(String.class)
-                                .doOnNext(body -> log.warn(":경고: Unexpected response: {}", body))
-                                .then(Mono.empty());
-                    }
-                })
+                .retrieve()
+                .bodyToMono(TeamsUserActivityCountsResponse.class)
                 .block();
 
-        log.info("✅ JSON 응답:\n{}", jsonResponse);
-        return jsonResponse;
+        return response;
+    }
+    public TeamsTeamActivityDetailResponse getTeamsTeamActivityDetail(Long userId, String period) {
+        String accessToken = getAccessToken(userId);
+        String url = "/reports/getTeamsTeamActivityDetail(period='" + period + "')?$format=application/json";
+
+        //Beta 도메인에서는 JSON으로 직접 응답
+        TeamsTeamActivityDetailResponse response = webClientTeams.get()
+                .uri(url)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .bodyToMono(TeamsTeamActivityDetailResponse.class)
+                .block();
+        return response;
+    }
+
+    public TeamsTeamActivityCountsResponse getTeamsTeamActivityCounts(Long userId, String period) {
+        String accessToken = getAccessToken(userId);
+        String url = "/reports/getTeamsTeamActivityCounts(period='" + period + "')?$format=application/json";
+
+        // Beta 도메인에서는 JSON으로 직접 응답
+        TeamsTeamActivityCountsResponse response = webClientTeams.get()
+                .uri(url)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .bodyToMono(TeamsTeamActivityCountsResponse.class)
+                .block();
+        return response;
     }
 
     private String getAccessToken(Long userId) {
