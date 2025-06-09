@@ -41,6 +41,10 @@ public enum UserRole {
         return this == USER;
     }
 
+    public boolean isLeader() {
+        return this == LEADER;
+    }
+
     @JsonCreator
     public static UserRole from(String val) {
         for (UserRole role : UserRole.values()) {
