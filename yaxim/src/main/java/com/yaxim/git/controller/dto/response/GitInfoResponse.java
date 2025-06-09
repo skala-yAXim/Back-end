@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class GitInfoResponse {
+    private boolean connected;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String gitId;
