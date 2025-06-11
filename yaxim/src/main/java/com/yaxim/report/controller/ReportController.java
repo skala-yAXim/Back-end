@@ -1,4 +1,4 @@
 
-public class ReportController {
+ class ReportController {
 
 }
