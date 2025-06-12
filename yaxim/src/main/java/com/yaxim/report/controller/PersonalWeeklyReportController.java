@@ -28,9 +28,8 @@ public class PersonalWeeklyReportController {
     @Operation(summary = "내 위클리 보고서 생성")
     @PostMapping
     public ResponseEntity<ReportResponse> createMyWeeklyReport(
-            @Valid @RequestBody ReportCreateRequest request,
-            @Parameter(hidden = true) JwtAuthentication auth) {
-         ReportResponse response = weeklyReportService.createWeeklyReport(auth.getUserId(), request);
+            @Valid @RequestBody ReportCreateRequest request) {
+         ReportResponse response = weeklyReportService.createWeeklyReport(request.getUserId(), request);
          return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
