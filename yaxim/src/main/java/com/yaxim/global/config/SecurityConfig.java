@@ -152,8 +152,8 @@ public class SecurityConfig {
                         .requestMatchers("/projects/**").permitAll() // 🔥 테스트용 임시 추가
                         .requestMatchers("/auth/logout").permitAll()
                         .requestMatchers("/user/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/reports/personal/daily").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/reports/personal/weekly").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/reports/user/daily").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/reports/user/weekly").permitAll()
                         .requestMatchers(HttpMethod.POST,"/reports/team/weekly").permitAll()
                         .anyRequest().authenticated()
                 )
