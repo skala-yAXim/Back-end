@@ -4,7 +4,7 @@ import com.yaxim.global.error.model.CustomException;
 import com.yaxim.global.error.model.ErrorCode;
 
 public class ReportNotFoundException extends CustomException {
-    public ReportNotFoundException(String message) {
-        super(ErrorCode.TEAM_NOT_FOUND);
+    public ReportNotFoundException() {
+        super(ErrorCode.REPORT_NOT_FOUND);
     }
 }
