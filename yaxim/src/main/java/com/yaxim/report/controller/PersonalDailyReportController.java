@@ -28,9 +28,8 @@ public class PersonalDailyReportController {
     @Operation(summary = "내 데일리 보고서 생성")
     @PostMapping
     public ResponseEntity<ReportResponse> createMyDailyReport(
-            @Valid @RequestBody ReportCreateRequest request,
-            @Parameter(hidden = true) JwtAuthentication auth) {
-         ReportResponse response = dailyReportService.createDailyReport(auth.getUserId(), request);
+            @Valid @RequestBody ReportCreateRequest request) {
+         ReportResponse response = dailyReportService.createDailyReport(request.getUserId(), request);
          return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
