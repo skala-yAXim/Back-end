@@ -41,7 +41,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 "/login/oauth2/code/azure",
                 "/git/webhook",
                 "/auth/reissue",
-                "/auth/logout"
+                "/auth/logout",
+                "/reports/user/daily",
+                "/reports/user/weekly",
+                "/reports/team/weekly"
         };
 
         String path = request.getRequestURI();

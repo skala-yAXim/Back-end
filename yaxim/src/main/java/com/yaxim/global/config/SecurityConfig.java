@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -151,6 +152,9 @@ public class SecurityConfig {
                         .requestMatchers("/projects/**").permitAll() // 🔥 테스트용 임시 추가
                         .requestMatchers("/auth/logout").permitAll()
                         .requestMatchers("/user/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/reports/user/daily").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/reports/user/weekly").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/reports/team/weekly").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
