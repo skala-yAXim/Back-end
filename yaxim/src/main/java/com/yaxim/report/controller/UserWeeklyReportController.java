@@ -3,7 +3,7 @@ package com.yaxim.report.controller;
 import com.yaxim.global.auth.jwt.JwtAuthentication;
 import com.yaxim.report.controller.dto.request.ReportCreateRequest;
 import com.yaxim.report.controller.dto.response.ReportResponse;
-import com.yaxim.report.service.PersonalWeeklyReportService;
+import com.yaxim.report.service.UserWeeklyReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "개인 위클리 보고서")
 @RestController
-@RequestMapping("/reports/personal/weekly")
+@RequestMapping("/reports/user/weekly")
 @RequiredArgsConstructor
-public class PersonalWeeklyReportController {
+public class UserWeeklyReportController {
 
-     private final PersonalWeeklyReportService weeklyReportService; // 주입 필요
+     private final UserWeeklyReportService weeklyReportService; // 주입 필요
 
     @Operation(summary = "내 위클리 보고서 생성")
     @PostMapping

@@ -2,10 +2,10 @@ package com.yaxim.report.service;
 
 import com.yaxim.report.controller.dto.request.ReportCreateRequest;
 import com.yaxim.report.controller.dto.response.ReportResponse;
-import com.yaxim.report.entity.PersonalDailyReport;
+import com.yaxim.report.entity.UserDailyReport;
 import com.yaxim.report.exception.ReportAccessDeniedException;
 import com.yaxim.report.exception.ReportNotFoundException;
-import com.yaxim.report.repository.PersonalDailyReportRepository;
+import com.yaxim.report.repository.UserDailyReportRepository;
 import com.yaxim.report.util.JsonConverter;
 import com.yaxim.team.entity.TeamMember;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
@@ -21,9 +21,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PersonalDailyReportService {
+public class UserDailyReportService {
 
-    private final PersonalDailyReportRepository dailyReportRepository;
+    private final UserDailyReportRepository dailyReportRepository;
     private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
 
@@ -32,7 +32,7 @@ public class PersonalDailyReportService {
         Users user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         TeamMember teamMember = teamMemberRepository.findByEmail(user.getEmail()).orElseThrow(TeamMemberNotMappedException::new);
 
-        PersonalDailyReport report = PersonalDailyReport.builder()
+        UserDailyReport report = UserDailyReport.builder()
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .report(request.getReport())
@@ -54,7 +54,7 @@ public class PersonalDailyReportService {
     }
 
     public ReportResponse getReportById(Long reportId, Long userId) {
-        PersonalDailyReport report = dailyReportRepository.findById(reportId).orElseThrow(ReportNotFoundException::new);
+        UserDailyReport report = dailyReportRepository.findById(reportId).orElseThrow(ReportNotFoundException::new);
         if (!report.getUser().getId().equals(userId)) {
             throw new ReportAccessDeniedException();
         }
@@ -63,14 +63,14 @@ public class PersonalDailyReportService {
 
     @Transactional
     public void deleteReport(Long reportId, Long userId) {
-        PersonalDailyReport report = dailyReportRepository.findById(reportId).orElseThrow(ReportNotFoundException::new);
+        UserDailyReport report = dailyReportRepository.findById(reportId).orElseThrow(ReportNotFoundException::new);
         if (!report.getUser().getId().equals(userId)) {
             throw new ReportAccessDeniedException();
         }
         dailyReportRepository.delete(report);
     }
 
-    private ReportResponse convertToResponse(PersonalDailyReport report) {
+    private ReportResponse convertToResponse(UserDailyReport report) {
         return ReportResponse.builder()
                 .id(report.getId())
                 .createdAt(report.getCreatedAt())
