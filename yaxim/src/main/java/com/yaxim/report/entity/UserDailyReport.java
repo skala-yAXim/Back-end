@@ -10,19 +10,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
-/**
- * 개인 주간 보고서 엔티티
- * BaseReportEntity를 상속받아 user와 team 정보를 추가로 가집니다.
- */
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class PersonalWeeklyReport extends BaseReport {
+public class UserDailyReport extends BaseReport {
 
     /**
      * 보고서의 주체가 되는 사용자
@@ -39,7 +34,8 @@ public class PersonalWeeklyReport extends BaseReport {
     private Team team;
 
     @Builder
-    public PersonalWeeklyReport(LocalDate startDate, LocalDate endDate, String report, Users user, Team team) {
+    public UserDailyReport(LocalDate startDate, LocalDate endDate, String report, Users user, Team team) {
+        // super()를 통해 부모 클래스의 필드를 초기화합니다.
         super(startDate, endDate, report);
         this.user = user;
         this.team = team;
