@@ -42,8 +42,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 "/git/webhook",
                 "/auth/reissue",
                 "/auth/logout",
-                "/reports/personal/daily",
-                "/reports/personal/weekly",
+                "/reports/user/daily",
+                "/reports/user/weekly",
                 "/reports/team/weekly"
         };
 
