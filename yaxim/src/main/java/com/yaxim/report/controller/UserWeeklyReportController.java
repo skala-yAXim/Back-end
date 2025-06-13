@@ -25,14 +25,6 @@ public class UserWeeklyReportController {
 
      private final UserWeeklyReportService weeklyReportService; // 주입 필요
 
-    @Operation(summary = "내 위클리 보고서 생성")
-    @PostMapping
-    public ResponseEntity<ReportResponse> createMyWeeklyReport(
-            @Valid @RequestBody ReportCreateRequest request) {
-         ReportResponse response = weeklyReportService.createWeeklyReport(request.getUserId(), request);
-         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
     @Operation(summary = "내 위클리 보고서 목록 조회")
     @GetMapping
     public ResponseEntity<Page<ReportResponse>> getMyWeeklyReports(
@@ -41,6 +33,8 @@ public class UserWeeklyReportController {
          Page<ReportResponse> reports = weeklyReportService.getMyWeeklyReports(auth.getUserId(), pageable);
          return ResponseEntity.ok(reports);
     }
+
+    // TODO 팀장이 팀원 위클리 보게 해야함
 
     @Operation(summary = "내 위클리 보고서 상세 조회")
     @GetMapping("/{reportId}")
