@@ -3,6 +3,7 @@ package com.yaxim.statics.repository;
 import com.yaxim.statics.entity.Weekday;
 import com.yaxim.statics.entity.DailyTeamActivity;
 import com.yaxim.statics.entity.select.AverageActivity;
+import com.yaxim.statics.entity.select.SumActivity;
 import com.yaxim.team.entity.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -32,4 +33,22 @@ public interface TeamStaticsRepository extends JpaRepository<DailyTeamActivity, 
     GROUP BY a.reportDate
     """)
     AverageActivity getTeamAvgByDayAndTeam(Weekday day, Team team);
+
+    @Query("""
+        SELECT new com.yaxim.statics.entity.select.SumActivity (
+            SUM(a.teamsPost),
+            SUM(a.docsDocx),
+            SUM(a.docsXlsx),
+            SUM(a.docsTxt),
+            SUM(a.docsEtc),
+            SUM(a.emailReceive),
+            SUM(a.emailSend),
+            SUM(a.gitPullRequest),
+            SUM(a.gitCommit),
+            SUM(a.gitIssue)
+        )
+        FROM DailyTeamActivity a
+        WHERE a.team = :team
+    """)
+    SumActivity getTeamWeekActivity(Team team);
 }
