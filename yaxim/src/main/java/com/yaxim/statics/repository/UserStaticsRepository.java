@@ -3,6 +3,7 @@ package com.yaxim.statics.repository;
 import com.yaxim.statics.entity.select.AverageActivity;
 import com.yaxim.statics.entity.DailyUserActivity;
 import com.yaxim.statics.entity.Weekday;
+import com.yaxim.statics.entity.select.SumActivity;
 import com.yaxim.statics.entity.select.TeamActivity;
 import com.yaxim.user.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,6 +35,24 @@ public interface UserStaticsRepository extends JpaRepository<DailyUserActivity, 
     AverageActivity getUserAvgActivityByWeekDay(Weekday day);
 
     @Query("""
+        SELECT new com.yaxim.statics.entity.select.SumActivity (
+            SUM(a.teamsPost),
+            SUM(a.docsDocx),
+            SUM(a.docsXlsx),
+            SUM(a.docsTxt),
+            SUM(a.docsEtc),
+            SUM(a.emailReceive),
+            SUM(a.emailSend),
+            SUM(a.gitPullRequest),
+            SUM(a.gitCommit),
+            SUM(a.gitIssue)
+        )
+        FROM DailyUserActivity a
+        WHERE a.user.id = :userId
+    """)
+    SumActivity getUserWeekActivity(Long userId);
+
+    @Query("""
         SELECT new com.yaxim.statics.entity.select.TeamActivity (
             a.reportDate,
             SUM(a.teamsPost),
@@ -52,5 +71,4 @@ public interface UserStaticsRepository extends JpaRepository<DailyUserActivity, 
         GROUP BY a.reportDate
     """)
     TeamActivity getTeamActivityByWeekdayAndUser(Weekday day, List<Users> users);
-
 }
