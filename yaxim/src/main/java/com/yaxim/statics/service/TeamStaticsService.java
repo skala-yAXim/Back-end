@@ -2,6 +2,7 @@ package com.yaxim.statics.service;
 
 import com.yaxim.statics.controller.dto.response.AverageStaticsResponse;
 import com.yaxim.statics.controller.dto.response.GeneralStaticsResponse;
+import com.yaxim.statics.controller.dto.response.SumStaticResponse;
 import com.yaxim.statics.entity.Weekday;
 import com.yaxim.statics.entity.DailyTeamActivity;
 import com.yaxim.statics.entity.select.AverageActivity;
@@ -90,6 +91,22 @@ public class TeamStaticsService {
         return activities.stream()
                 .map(AverageStaticsResponse::from)
                 .toList();
+    }
+
+    public SumStaticResponse getTeamWeekStatics(Long userId) {
+        Team team = getTeamByUserId(userId);
+
+        Boolean hasData = teamStaticsRepository.existsAllByTeamId(team.getId());
+
+        if (!hasData) {
+            getTeamStatic(userId);
+        }
+
+        log.info(team.getId());
+
+        return SumStaticResponse.from(
+                teamStaticsRepository.getTeamWeekActivity(team)
+        );
     }
 
     private Team getTeamByUserId(Long userId) {

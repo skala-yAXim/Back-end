@@ -1,5 +1,6 @@
 package com.yaxim.statics.service;
 
+import com.yaxim.statics.controller.dto.response.SumStaticResponse;
 import com.yaxim.statics.entity.select.AverageActivity;
 import com.yaxim.statics.controller.dto.response.AverageStaticsResponse;
 import com.yaxim.statics.controller.dto.response.GeneralStaticsResponse;
@@ -37,5 +38,11 @@ public class UserStaticsService {
         return activities.stream()
                 .map(AverageStaticsResponse::from)
                 .toList();
+    }
+
+    public SumStaticResponse getUserWeekStatics(Long userId) {
+        return SumStaticResponse.from(
+                userStaticsRepository.getUserWeekActivity(userId)
+        );
     }
 }
