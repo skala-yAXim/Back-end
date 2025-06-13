@@ -6,6 +6,7 @@ import com.yaxim.graph.controller.dto.GraphTeamMemberResponse;
 import com.yaxim.graph.controller.dto.GraphTeamResponse;
 import com.yaxim.team.controller.dto.response.TeamMemberResponse;
 import com.yaxim.team.controller.dto.response.TeamResponse;
+import com.yaxim.team.controller.dto.response.TeamWithMemberResponse;
 import com.yaxim.team.entity.Team;
 import com.yaxim.team.entity.TeamMember;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
@@ -59,6 +60,14 @@ public class TeamService {
         List<TeamMember> members = teamMemberRepository.findByTeamId(teamId);
 
         return getTeamMemberResponse(members);
+    }
+
+    public List<TeamResponse> getAllTeams() {
+        List<Team> teams = teamRepository.findAll();
+
+        return teams.stream()
+                .map(this::getTeamResponse)
+                .toList();
     }
 
     @Transactional
@@ -125,4 +134,23 @@ public class TeamService {
                     );
                 }).toList();
     }
+
+    public List<TeamWithMemberResponse> getTeamWithMemberResponses() {
+        List<Team> teams = teamRepository.findAll();
+        return teams.stream()
+                .map(team -> {
+                List<TeamMember> members = teamMemberRepository.findByTeamId(team.getId());
+                List<TeamMemberResponse> memberResponses = getTeamMemberResponse(members);
+                return new TeamWithMemberResponse(
+                        team.getId(),
+                        team.getCreatedAt(),
+                        team.getUpdatedAt(),
+                        team.getName(),
+                        team.getDescription(),
+                        memberResponses
+                );
+            })
+            .toList();
+        }
+
 }
