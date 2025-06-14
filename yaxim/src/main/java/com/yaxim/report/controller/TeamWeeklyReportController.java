@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CheckRole(UserRole.LEADER)
-@Tag(name = "팀 위클리 보고서")
+@Tag(name = "보고서 - 팀 Weekly 및 팀 멤버 Weekly [팀장 기능]")
 @RestController
 @RequestMapping("/reports/team/weekly")
 @RequiredArgsConstructor
@@ -27,8 +27,13 @@ public class TeamWeeklyReportController {
     private final TeamWeeklyReportService teamWeeklyReportService; // 주입 필요
 
     // TODO 팀장이 팀원 위클리 보게 해야함
+    @Operation(summary = "팀 멤버 보고서 목록 조회")
+    @GetMapping("/TODO")
+    public ResponseEntity<Page<WeeklyReportResponse>> getTeamMemberWeeklyReports() {
+        return null;
+    }
 
-    @Operation(summary = "[리더] 팀 위클리 보고서 목록 조회")
+    @Operation(summary = "팀 위클리 보고서 목록 조회")
     @GetMapping
     public ResponseEntity<Page<WeeklyReportResponse>> getTeamWeeklyReports(
             @Parameter(hidden = true) JwtAuthentication auth,
@@ -38,7 +43,7 @@ public class TeamWeeklyReportController {
         return ResponseEntity.ok(reports);
     }
 
-    @Operation(summary = "[리더] 팀 위클리 보고서 상세 조회")
+    @Operation(summary = "팀 위클리 보고서 상세 조회")
     @GetMapping("/{reportId}")
     public ResponseEntity<WeeklyReportDetailResponse> getTeamWeeklyReport(
             @PathVariable Long reportId,
@@ -48,7 +53,7 @@ public class TeamWeeklyReportController {
         return ResponseEntity.ok(report);
     }
 
-    @Operation(summary = "[리더] 팀 위클리 보고서 삭제")
+    @Operation(summary = "팀 위클리 보고서 삭제")
     @DeleteMapping("/{reportId}")
     public ResponseEntity<Void> deleteTeamWeeklyReport(
             @PathVariable Long reportId,

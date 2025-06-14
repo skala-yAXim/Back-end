@@ -32,7 +32,7 @@ public class AuthController {
     private final TokenService tokenService;
     private final CookieService cookieService;
 
-    @Operation(summary = "Access Token 유효성 및 만료 유무 확인 (AccessToken으로 Swagger JWT 설정 후 테스트해주세요.)", description = "쿠키에 저장된 Access Token이 유효한지 확인합니다. (개발용으로 Access Token의 Duration을 10초로 설정해두었습니다.)")
+    @Operation(summary = "Access Token 유효성 및 만료 유무 확인", description = "쿠키에 저장된 Access Token이 유효한지 확인합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "토큰 유효함"),
             @ApiResponse(responseCode = "401", description = "토큰 유효하지 않음 또는 없음")

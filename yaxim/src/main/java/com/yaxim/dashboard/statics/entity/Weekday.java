@@ -1,4 +1,4 @@
-package com.yaxim.statics.entity;
+package com.yaxim.dashboard.statics.entity;
 
 import lombok.Getter;
 

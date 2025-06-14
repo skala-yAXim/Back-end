@@ -1,4 +1,4 @@
-package com.yaxim.statics.entity.select;
+package com.yaxim.dashboard.statics.entity.select;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

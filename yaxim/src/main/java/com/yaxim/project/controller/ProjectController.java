@@ -33,7 +33,7 @@ import java.util.List;
 @RequestMapping("/projects")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "프로젝트 관리", description = "프로젝트 CRUD 및 파일 관리 (통합)")
+@Tag(name = "프로젝트 관리 [팀장 기능]", description = "프로젝트 CRUD 및 파일 관리 (통합)")
 public class ProjectController {
 
     private final ProjectService projectService;

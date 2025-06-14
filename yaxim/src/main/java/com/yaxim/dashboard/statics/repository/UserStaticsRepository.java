@@ -1,10 +1,10 @@
-package com.yaxim.statics.repository;
+package com.yaxim.dashboard.statics.repository;
 
-import com.yaxim.statics.entity.select.AverageActivity;
-import com.yaxim.statics.entity.DailyUserActivity;
-import com.yaxim.statics.entity.Weekday;
-import com.yaxim.statics.entity.select.SumActivity;
-import com.yaxim.statics.entity.select.TeamActivity;
+import com.yaxim.dashboard.statics.entity.select.AverageActivity;
+import com.yaxim.dashboard.statics.entity.DailyUserActivity;
+import com.yaxim.dashboard.statics.entity.Weekday;
+import com.yaxim.dashboard.statics.entity.select.SumActivity;
+import com.yaxim.dashboard.statics.entity.select.TeamActivity;
 import com.yaxim.user.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +15,7 @@ public interface UserStaticsRepository extends JpaRepository<DailyUserActivity, 
     List<DailyUserActivity> findAllByUserId(Long userId);
 
     @Query("""
-        SELECT new com.yaxim.statics.entity.select.AverageActivity (
+        SELECT new com.yaxim.dashboard.statics.entity.select.AverageActivity (
             a.reportDate,
             AVG(a.teamsPost),
             AVG(a.docsDocx),
@@ -35,7 +35,7 @@ public interface UserStaticsRepository extends JpaRepository<DailyUserActivity, 
     AverageActivity getUserAvgActivityByWeekDay(Weekday day);
 
     @Query("""
-        SELECT new com.yaxim.statics.entity.select.SumActivity (
+        SELECT new com.yaxim.dashboard.statics.entity.select.SumActivity (
             SUM(a.teamsPost),
             SUM(a.docsDocx),
             SUM(a.docsXlsx),
@@ -53,7 +53,7 @@ public interface UserStaticsRepository extends JpaRepository<DailyUserActivity, 
     SumActivity getUserWeekActivity(Long userId);
 
     @Query("""
-        SELECT new com.yaxim.statics.entity.select.TeamActivity (
+        SELECT new com.yaxim.dashboard.statics.entity.select.TeamActivity (
             a.reportDate,
             SUM(a.teamsPost),
             SUM(a.docsDocx),
