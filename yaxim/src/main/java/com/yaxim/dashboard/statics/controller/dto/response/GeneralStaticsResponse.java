@@ -1,7 +1,7 @@
-package com.yaxim.statics.controller.dto.response;
+package com.yaxim.dashboard.statics.controller.dto.response;
 
-import com.yaxim.statics.entity.DailyUserActivity;
-import com.yaxim.statics.entity.DailyTeamActivity;
+import com.yaxim.dashboard.statics.entity.DailyUserActivity;
+import com.yaxim.dashboard.statics.entity.DailyTeamActivity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,6 @@
-package com.yaxim.statics.controller.dto.response;
+package com.yaxim.dashboard.statics.controller.dto.response;
 
-import com.yaxim.statics.entity.select.AverageActivity;
+import com.yaxim.dashboard.statics.entity.select.AverageActivity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

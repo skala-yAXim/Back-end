@@ -1,8 +1,7 @@
-package com.yaxim.statics.entity;
+package com.yaxim.dashboard.statics.entity;
 
 import com.yaxim.user.entity.Users;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

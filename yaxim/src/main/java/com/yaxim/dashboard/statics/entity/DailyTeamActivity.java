@@ -1,4 +1,4 @@
-package com.yaxim.statics.entity;
+package com.yaxim.dashboard.statics.entity;
 
 import com.yaxim.team.entity.Team;
 import jakarta.persistence.*;

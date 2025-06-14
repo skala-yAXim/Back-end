@@ -15,7 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "개인 위클리 보고서")
+@Tag(name = "보고서 - 개인 Weekly")
 @RestController
 @RequestMapping("/reports/user/weekly")
 @RequiredArgsConstructor

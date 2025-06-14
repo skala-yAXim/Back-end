@@ -1,9 +1,9 @@
-package com.yaxim.statics.repository;
+package com.yaxim.dashboard.statics.repository;
 
-import com.yaxim.statics.entity.Weekday;
-import com.yaxim.statics.entity.DailyTeamActivity;
-import com.yaxim.statics.entity.select.AverageActivity;
-import com.yaxim.statics.entity.select.SumActivity;
+import com.yaxim.dashboard.statics.entity.Weekday;
+import com.yaxim.dashboard.statics.entity.DailyTeamActivity;
+import com.yaxim.dashboard.statics.entity.select.AverageActivity;
+import com.yaxim.dashboard.statics.entity.select.SumActivity;
 import com.yaxim.team.entity.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +15,7 @@ public interface TeamStaticsRepository extends JpaRepository<DailyTeamActivity, 
     List<DailyTeamActivity> findAllByTeam(Team team);
 
     @Query("""
-    SELECT new com.yaxim.statics.entity.select.AverageActivity(
+    SELECT new com.yaxim.dashboard.statics.entity.select.AverageActivity(
         a.reportDate,
             AVG(a.teamsPost),
             AVG(a.docsDocx),
@@ -35,7 +35,7 @@ public interface TeamStaticsRepository extends JpaRepository<DailyTeamActivity, 
     AverageActivity getTeamAvgByDayAndTeam(Weekday day, Team team);
 
     @Query("""
-        SELECT new com.yaxim.statics.entity.select.SumActivity (
+        SELECT new com.yaxim.dashboard.statics.entity.select.SumActivity (
             SUM(a.teamsPost),
             SUM(a.docsDocx),
             SUM(a.docsXlsx),

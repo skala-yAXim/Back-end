@@ -11,6 +11,7 @@ import com.yaxim.team.controller.dto.response.TeamResponse;
 import com.yaxim.global.for_ai.dto.response.TeamWithMemberResponse;
 import com.yaxim.team.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api-for-ai")
 @RequiredArgsConstructor
+@Tag(name = "AI 전용 API", description = "자물쇠 눌러서 AI API Key로 Authorize 해주세요!")
 public class ApiForAiController {
     private final TeamService teamService;
     private final UserWeeklyReportService userWeeklyReportService;
@@ -31,18 +33,20 @@ public class ApiForAiController {
     // Team
 
     @GetMapping("/team/all")
+    @Operation(summary = "DB에 저장되어 있는 모든 팀 조회")
     public ResponseEntity<List<TeamResponse>> getAllTeams() {
         return ResponseEntity.ok(teamService.getAllTeams());
     }
 
     @GetMapping("/team/all/members")
+    @Operation(summary = "DB에 저장되어 있는 모든 팀 및 팀 멤버 정보 조회")
     public ResponseEntity<List<TeamWithMemberResponse>> getTeamWithMemberResponses() {
         return ResponseEntity.ok(teamService.getTeamWithMemberResponses());
     }
 
     // Report
 
-    @Operation(summary = "내 데일리 보고서 생성")
+    @Operation(summary = "개인 Daily 생성")
     @PostMapping("/report/daily")
     public ResponseEntity<DailyReportDetailResponse> createMyDailyReport(
             @Valid @RequestBody DailyReportCreateRequest request) {
@@ -50,7 +54,7 @@ public class ApiForAiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "내 위클리 보고서 생성")
+    @Operation(summary = "개인 Weekly 생성")
     @PostMapping("/report/user-weekly")
     public ResponseEntity<WeeklyReportDetailResponse> createMyWeeklyReport(
             @Valid @RequestBody WeeklyReportCreateRequest request) {
@@ -58,7 +62,7 @@ public class ApiForAiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "[리더] 팀 위클리 보고서 생성")
+    @Operation(summary = "팀 Weekly 생성")
     @PostMapping("/report/team-weekly")
     public ResponseEntity<WeeklyReportDetailResponse> createTeamWeeklyReport(
             @Valid @RequestBody WeeklyReportCreateRequest request) {

@@ -1,14 +1,14 @@
-package com.yaxim.statics.service;
+package com.yaxim.dashboard.statics.service;
 
-import com.yaxim.statics.controller.dto.response.AverageStaticsResponse;
-import com.yaxim.statics.controller.dto.response.GeneralStaticsResponse;
-import com.yaxim.statics.controller.dto.response.SumStaticResponse;
-import com.yaxim.statics.entity.Weekday;
-import com.yaxim.statics.entity.DailyTeamActivity;
-import com.yaxim.statics.entity.select.AverageActivity;
-import com.yaxim.statics.entity.select.TeamActivity;
-import com.yaxim.statics.repository.TeamStaticsRepository;
-import com.yaxim.statics.repository.UserStaticsRepository;
+import com.yaxim.dashboard.statics.controller.dto.response.AverageStaticsResponse;
+import com.yaxim.dashboard.statics.controller.dto.response.GeneralStaticsResponse;
+import com.yaxim.dashboard.statics.controller.dto.response.SumStaticResponse;
+import com.yaxim.dashboard.statics.entity.Weekday;
+import com.yaxim.dashboard.statics.entity.DailyTeamActivity;
+import com.yaxim.dashboard.statics.entity.select.AverageActivity;
+import com.yaxim.dashboard.statics.entity.select.TeamActivity;
+import com.yaxim.dashboard.statics.repository.TeamStaticsRepository;
+import com.yaxim.dashboard.statics.repository.UserStaticsRepository;
 import com.yaxim.team.entity.Team;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
 import com.yaxim.team.repository.TeamMemberRepository;
