@@ -3,10 +3,8 @@ package com.yaxim.global.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yaxim.global.auth.CookieService;
 import com.yaxim.global.auth.jwt.JwtAuthEntryPoint;
-import com.yaxim.global.auth.jwt.JwtAuthentication;
 import com.yaxim.global.auth.jwt.JwtAuthenticationFilter;
 import com.yaxim.global.auth.jwt.JwtProvider;
-import com.yaxim.global.auth.jwt.exception.TokenNotProvidedException;
 import com.yaxim.global.auth.oauth2.CustomOAuth2UserService;
 import com.yaxim.global.auth.oauth2.CustomOidcUserService;
 import com.yaxim.global.auth.oauth2.OAuth2FailureHandler;
@@ -117,7 +115,6 @@ public class SecurityConfig {
 
         config.setAllowCredentials(true);
         config.addAllowedOriginPattern("*");
-//        config.setAllowedOrigins(List.of("http://localhost:3000")); // Todo CORS 에러 Test 후 "*" 와 정확한 url 표기 중 하나 고르기
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
 
@@ -148,13 +145,9 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/login*").permitAll()
                         .requestMatchers("/auth/reissue").permitAll()
-                        .requestMatchers("/git/**").permitAll()
-                        .requestMatchers("/projects/**").permitAll() // 🔥 테스트용 임시 추가
                         .requestMatchers("/auth/logout").permitAll()
-                        .requestMatchers("/user/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/reports/user/daily").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/reports/user/weekly").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/reports/team/weekly").permitAll()
+                        .requestMatchers("/api-for-ai/**").permitAll()
+                        .requestMatchers("/git/webhook").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
