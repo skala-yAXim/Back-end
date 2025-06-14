@@ -1,12 +1,12 @@
 package com.yaxim.report.service;
 
-import com.yaxim.report.controller.dto.request.ReportCreateRequest;
-import com.yaxim.report.controller.dto.response.ReportResponse;
+import com.yaxim.global.for_ai.dto.request.DailyReportCreateRequest;
+import com.yaxim.report.controller.dto.response.DailyReportDetailResponse;
+import com.yaxim.report.controller.dto.response.DailyReportResponse;
 import com.yaxim.report.entity.UserDailyReport;
 import com.yaxim.report.exception.ReportAccessDeniedException;
 import com.yaxim.report.exception.ReportNotFoundException;
 import com.yaxim.report.repository.UserDailyReportRepository;
-import com.yaxim.report.util.JsonConverter;
 import com.yaxim.team.entity.TeamMember;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
 import com.yaxim.team.repository.TeamMemberRepository;
@@ -28,37 +28,34 @@ public class UserDailyReportService {
     private final TeamMemberRepository teamMemberRepository;
 
     @Transactional
-    public ReportResponse createDailyReport(Long userId, ReportCreateRequest request) {
+    public DailyReportDetailResponse createDailyReport(Long userId, DailyReportCreateRequest request) {
         Users user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         TeamMember teamMember = teamMemberRepository.findByEmail(user.getEmail()).orElseThrow(TeamMemberNotMappedException::new);
 
         UserDailyReport report = UserDailyReport.builder()
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
+                .date(request.getDate())
                 .report(request.getReport())
                 .user(user)
                 .team(teamMember.getTeam())
                 .build();
 
         dailyReportRepository.save(report);
-        return convertToResponse(report);
+        return DailyReportDetailResponse.from(report);
     }
 
     @Transactional(readOnly = true)
-    public Page<ReportResponse> getMyDailyReports(Long userId, Pageable pageable) {
-        Page<ReportResponse> personalDailyReports = dailyReportRepository.findByUserId(userId, pageable).map(this::convertToResponse);
-
-
-
-        return personalDailyReports;
+    public Page<DailyReportResponse> getMyDailyReports(Long userId, Pageable pageable) {
+        return dailyReportRepository.findByUserId(userId, pageable)
+                .map(DailyReportResponse::from);
     }
 
-    public ReportResponse getReportById(Long reportId, Long userId) {
+    @Transactional(readOnly = true)
+    public DailyReportDetailResponse getReportById(Long reportId, Long userId) {
         UserDailyReport report = dailyReportRepository.findById(reportId).orElseThrow(ReportNotFoundException::new);
         if (!report.getUser().getId().equals(userId)) {
             throw new ReportAccessDeniedException();
         }
-        return convertToResponse(report);
+        return DailyReportDetailResponse.from(report);
     }
 
     @Transactional
@@ -68,19 +65,5 @@ public class UserDailyReportService {
             throw new ReportAccessDeniedException();
         }
         dailyReportRepository.delete(report);
-    }
-
-    private ReportResponse convertToResponse(UserDailyReport report) {
-        return ReportResponse.builder()
-                .id(report.getId())
-                .createdAt(report.getCreatedAt())
-                .updatedAt(report.getUpdatedAt())
-                .startDate(report.getStartDate())
-                .endDate(report.getEndDate())
-                .report(JsonConverter.parseStringToObject(report.getReport()))
-                .userId(report.getUser().getId())
-                .userName(report.getUser().getName())
-                .teamId(report.getTeam().getId())
-                .build();
     }
 }

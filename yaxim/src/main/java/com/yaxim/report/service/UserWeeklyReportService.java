@@ -1,12 +1,12 @@
 package com.yaxim.report.service;
 
-import com.yaxim.report.controller.dto.request.ReportCreateRequest;
-import com.yaxim.report.controller.dto.response.ReportResponse;
+import com.yaxim.global.for_ai.dto.request.WeeklyReportCreateRequest;
+import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
+import com.yaxim.report.controller.dto.response.WeeklyReportResponse;
 import com.yaxim.report.entity.UserWeeklyReport;
 import com.yaxim.report.exception.ReportAccessDeniedException;
 import com.yaxim.report.exception.ReportNotFoundException;
 import com.yaxim.report.repository.UserWeeklyReportRepository;
-import com.yaxim.report.util.JsonConverter;
 import com.yaxim.team.entity.TeamMember;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
 import com.yaxim.team.repository.TeamMemberRepository;
@@ -28,7 +28,7 @@ public class UserWeeklyReportService {
     private final TeamMemberRepository teamMemberRepository;
 
     @Transactional
-    public ReportResponse createWeeklyReport(Long userId, ReportCreateRequest request) {
+    public WeeklyReportDetailResponse createWeeklyReport(Long userId, WeeklyReportCreateRequest request) {
         Users user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         TeamMember teamMember = teamMemberRepository.findByEmail(user.getEmail()).orElseThrow(TeamMemberNotMappedException::new);
 
@@ -41,21 +41,22 @@ public class UserWeeklyReportService {
                 .build();
 
         weeklyReportRepository.save(report);
-        return convertToResponse(report);
+        return WeeklyReportDetailResponse.from(report);
     }
 
     @Transactional(readOnly = true)
-    public Page<ReportResponse> getMyWeeklyReports(Long userId, Pageable pageable) {
-        return weeklyReportRepository.findByUserId(userId, pageable).map(this::convertToResponse);
+    public Page<WeeklyReportResponse> getMyWeeklyReports(Long userId, Pageable pageable) {
+        return weeklyReportRepository.findByUserId(userId, pageable)
+                .map(WeeklyReportResponse::fromTeam);
     }
 
     @Transactional(readOnly = true)
-    public ReportResponse getReportById(Long reportId, Long userId) {
+    public WeeklyReportDetailResponse getReportById(Long reportId, Long userId) {
         UserWeeklyReport report = weeklyReportRepository.findById(reportId).orElseThrow(ReportNotFoundException::new);
         if (!report.getUser().getId().equals(userId)) {
             throw new ReportAccessDeniedException();
         }
-        return convertToResponse(report);
+        return WeeklyReportDetailResponse.from(report);
     }
 
     @Transactional
@@ -65,19 +66,5 @@ public class UserWeeklyReportService {
             throw new ReportAccessDeniedException();
         }
         weeklyReportRepository.delete(report);
-    }
-
-    private ReportResponse convertToResponse(UserWeeklyReport report) {
-        return ReportResponse.builder()
-                .id(report.getId())
-                .createdAt(report.getCreatedAt())
-                .updatedAt(report.getUpdatedAt())
-                .startDate(report.getStartDate())
-                .endDate(report.getEndDate())
-                .report(JsonConverter.parseStringToObject(report.getReport()))
-                .userId(report.getUser().getId())
-                .userName(report.getUser().getName())
-                .teamId(report.getTeam().getId())
-                .build();
     }
 }

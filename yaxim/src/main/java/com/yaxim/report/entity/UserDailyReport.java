@@ -1,23 +1,35 @@
 package com.yaxim.report.entity;
 
+import com.yaxim.global.util.BaseEntity;
+import com.yaxim.global.util.JsonConverter;
 import com.yaxim.team.entity.Team;
 import com.yaxim.user.entity.Users;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class UserDailyReport extends BaseReport {
+public class UserDailyReport extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private LocalDate date;
+
+    @Lob
+    @Convert(converter = JsonConverter.class)
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private Map<String, Object> report;
 
     /**
      * 보고서의 주체가 되는 사용자
@@ -34,11 +46,11 @@ public class UserDailyReport extends BaseReport {
     private Team team;
 
     @Builder
-    public UserDailyReport(LocalDate startDate, LocalDate endDate, String report, Users user, Team team) {
-        // super()를 통해 부모 클래스의 필드를 초기화합니다.
-        super(startDate, endDate, report);
+    public UserDailyReport(LocalDate date, Map<String, Object> report, Users user, Team team) {
         this.user = user;
         this.team = team;
+        this.date = date;
+        this.report = report;
     }
 
 }
