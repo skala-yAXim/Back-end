@@ -4,7 +4,6 @@ import com.yaxim.global.auth.aop.CheckRole;
 import com.yaxim.global.auth.jwt.JwtAuthentication;
 import com.yaxim.team.controller.dto.response.TeamMemberResponse;
 import com.yaxim.team.controller.dto.response.TeamResponse;
-import com.yaxim.team.controller.dto.response.TeamWithMemberResponse;
 import com.yaxim.team.service.TeamService;
 import com.yaxim.user.entity.UserRole;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,15 +55,5 @@ public class TeamController {
     @PostMapping("/load")
     public ResponseEntity<TeamResponse> initTeam(JwtAuthentication auth) {
         return ResponseEntity.ok(teamService.loadTeam(auth.getUserId()));
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<List<TeamResponse>> getAllTeams() {
-        return ResponseEntity.ok(teamService.getAllTeams());
-    }
-
-    @GetMapping("/all/members")
-    public ResponseEntity<List<TeamWithMemberResponse>> getTeamWithMemberResponses() {
-        return ResponseEntity.ok(teamService.getTeamWithMemberResponses());
     }
 }

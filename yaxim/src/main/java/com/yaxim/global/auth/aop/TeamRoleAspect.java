@@ -43,8 +43,6 @@ public class TeamRoleAspect {
         TeamMember member = teamMemberRepository.findByEmail(email)
                 .orElseThrow(TeamMemberNotMappedException::new);
 
-        log.info(String.valueOf(member.getRole()));
-
         if (!member.getRole().equals(checkRole.value())) {
             throw new UserHasNoAuthorityException();
         }

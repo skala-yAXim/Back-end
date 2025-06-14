@@ -1,23 +1,21 @@
 package com.yaxim.report.controller;
 
 import com.yaxim.global.auth.jwt.JwtAuthentication;
-import com.yaxim.report.controller.dto.request.ReportCreateRequest;
-import com.yaxim.report.controller.dto.response.ReportResponse;
+import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
+import com.yaxim.report.controller.dto.response.WeeklyReportResponse;
 import com.yaxim.report.service.UserWeeklyReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "개인 위클리 보고서")
+@Tag(name = "보고서 - 개인 Weekly")
 @RestController
 @RequestMapping("/reports/user/weekly")
 @RequiredArgsConstructor
@@ -27,21 +25,19 @@ public class UserWeeklyReportController {
 
     @Operation(summary = "내 위클리 보고서 목록 조회")
     @GetMapping
-    public ResponseEntity<Page<ReportResponse>> getMyWeeklyReports(
+    public ResponseEntity<Page<WeeklyReportResponse>> getMyWeeklyReports(
             @Parameter(hidden = true) JwtAuthentication auth,
             @PageableDefault(sort = "startDate", direction = Sort.Direction.DESC) Pageable pageable) {
-         Page<ReportResponse> reports = weeklyReportService.getMyWeeklyReports(auth.getUserId(), pageable);
+         Page<WeeklyReportResponse> reports = weeklyReportService.getMyWeeklyReports(auth.getUserId(), pageable);
          return ResponseEntity.ok(reports);
     }
 
-    // TODO 팀장이 팀원 위클리 보게 해야함
-
     @Operation(summary = "내 위클리 보고서 상세 조회")
     @GetMapping("/{reportId}")
-    public ResponseEntity<ReportResponse> getMyWeeklyReport(
+    public ResponseEntity<WeeklyReportDetailResponse> getMyWeeklyReport(
             @PathVariable Long reportId,
             @Parameter(hidden = true) JwtAuthentication auth) {
-         ReportResponse report = weeklyReportService.getReportById(reportId, auth.getUserId());
+         WeeklyReportDetailResponse report = weeklyReportService.getReportById(reportId, auth.getUserId());
          return ResponseEntity.ok(report);
     }
 

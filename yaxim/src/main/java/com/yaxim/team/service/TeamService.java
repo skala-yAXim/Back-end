@@ -6,7 +6,7 @@ import com.yaxim.graph.controller.dto.GraphTeamMemberResponse;
 import com.yaxim.graph.controller.dto.GraphTeamResponse;
 import com.yaxim.team.controller.dto.response.TeamMemberResponse;
 import com.yaxim.team.controller.dto.response.TeamResponse;
-import com.yaxim.team.controller.dto.response.TeamWithMemberResponse;
+import com.yaxim.global.for_ai.dto.response.TeamWithMemberResponse;
 import com.yaxim.team.entity.Team;
 import com.yaxim.team.entity.TeamMember;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
