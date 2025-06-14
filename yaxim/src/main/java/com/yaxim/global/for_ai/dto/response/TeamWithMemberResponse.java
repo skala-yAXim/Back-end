@@ -1,5 +1,6 @@
-package com.yaxim.team.controller.dto.response;
+package com.yaxim.global.for_ai.dto.response;
 
+import com.yaxim.team.controller.dto.response.TeamMemberResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
