@@ -1,8 +1,7 @@
-package com.yaxim.report.controller.dto.request;
+package com.yaxim.global.for_ai.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,11 +9,12 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReportCreateRequest {
+public class WeeklyReportCreateRequest {
 
     @NotNull(message = "사용자 ID는 필수입니다.")
     @Schema(description = "사용자 ID", example = "1")
@@ -30,15 +30,7 @@ public class ReportCreateRequest {
     @Schema(description = "보고서 종료일", example = "2025-06-08")
     private LocalDate endDate;
 
-    @NotBlank(message = "보고서 내용은 필수입니다.")
-    @Schema(description = "보고서 내용 (JSON을 String으로 변환)", example = "{\"report_title\":\"...\"}")
-    private String report;
-
-    @AssertTrue(message = "종료일은 시작일보다 빠를 수 없습니다.")
-    private boolean isEndDateAfterOrEqualStartDate() {
-        if (startDate == null || endDate == null) {
-            return true;
-        }
-        return !endDate.isBefore(startDate);
-    }
+    @NotEmpty(message = "보고서 내용은 필수입니다.")
+    @Schema(description = "보고서 내용", example = "{\"report_title\":\"...\"}")
+    private Map<String, Object> report;
 }
