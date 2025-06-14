@@ -30,12 +30,12 @@ public class ApiForAiController {
 
     // Team
 
-    @GetMapping("/all")
+    @GetMapping("/team/all")
     public ResponseEntity<List<TeamResponse>> getAllTeams() {
         return ResponseEntity.ok(teamService.getAllTeams());
     }
 
-    @GetMapping("/all/members")
+    @GetMapping("/team/all/members")
     public ResponseEntity<List<TeamWithMemberResponse>> getTeamWithMemberResponses() {
         return ResponseEntity.ok(teamService.getTeamWithMemberResponses());
     }
