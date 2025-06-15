@@ -1,17 +1,16 @@
 package com.yaxim.global.for_ai.dto.response;
 
-import com.yaxim.team.controller.dto.response.TeamMemberResponse;
+import com.yaxim.project.controller.dto.response.ProjectDetailResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class TeamWithMemberResponse {
+public class TeamWithProjectResponse {
     private String id;
     private String name;
     private String description;
-    private List<TeamMemberResponse> members;
+    private List<ProjectDetailResponse> projects;
 }
