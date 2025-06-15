@@ -10,9 +10,10 @@ import java.time.LocalDate;
 public class AverageActivity {
     private LocalDate reportDate;
     private Double teamsPost;
+    private Double teamsReply;
     private Double docsDocx;
     private Double docsXlsx;
-    private Double docsTxt;
+    private Double docsPptx;
     private Double docsEtc;
     private Double emailReceive;
     private Double emailSend;

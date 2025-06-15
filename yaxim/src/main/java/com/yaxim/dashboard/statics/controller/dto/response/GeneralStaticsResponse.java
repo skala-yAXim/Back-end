@@ -22,6 +22,7 @@ public class GeneralStaticsResponse {
     @AllArgsConstructor
     public static class Teams {
         private Long post;
+        private Long reply;
     }
 
     @Getter
@@ -29,7 +30,7 @@ public class GeneralStaticsResponse {
     public static class Docs {
         private Long docx;
         private Long xlsx;
-        private Long txt;
+        private Long pptx;
         private Long etc;
 
     }
@@ -54,11 +55,14 @@ public class GeneralStaticsResponse {
     public static GeneralStaticsResponse from(DailyUserActivity activity) {
         return new GeneralStaticsResponse(
                 activity.getReportDate(),
-                new GeneralStaticsResponse.Teams(activity.getTeamsPost()),
+                new GeneralStaticsResponse.Teams(
+                        activity.getTeamsPost(),
+                        activity.getTeamsReply()
+                ),
                 new GeneralStaticsResponse.Docs(
                         activity.getDocsDocx(),
                         activity.getDocsXlsx(),
-                        (long) 0,
+                        activity.getDocsPptx(),
                         activity.getDocsEtc()
                 ),
                 new GeneralStaticsResponse.Email(
@@ -76,11 +80,14 @@ public class GeneralStaticsResponse {
     public static GeneralStaticsResponse from(DailyTeamActivity activity) {
         return new GeneralStaticsResponse(
                 activity.getReportDate(),
-                new GeneralStaticsResponse.Teams(activity.getTeamsPost()),
+                new GeneralStaticsResponse.Teams(
+                        activity.getTeamsPost(),
+                        activity.getTeamsReply()
+                ),
                 new GeneralStaticsResponse.Docs(
                         activity.getDocsDocx(),
                         activity.getDocsXlsx(),
-                        (long) 0,
+                        activity.getDocsPptx(),
                         activity.getDocsEtc()
                 ),
                 new GeneralStaticsResponse.Email(
