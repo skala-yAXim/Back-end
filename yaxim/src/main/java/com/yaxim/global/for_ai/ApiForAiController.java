@@ -3,6 +3,7 @@ package com.yaxim.global.for_ai;
 import com.yaxim.global.for_ai.dto.request.DailyReportCreateRequest;
 import com.yaxim.global.for_ai.dto.request.TeamWeeklyReportCreateRequest;
 import com.yaxim.global.for_ai.dto.request.WeeklyReportCreateRequest;
+import com.yaxim.global.for_ai.dto.response.TeamWithProjectResponse;
 import com.yaxim.report.controller.dto.response.DailyReportDetailResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
 import com.yaxim.report.service.TeamWeeklyReportService;
@@ -45,11 +46,11 @@ public class ApiForAiController {
         return ResponseEntity.ok(teamService.getTeamWithMemberResponses());
     }
 
-//    @GetMapping("/team/project")
-//    @Operation(summary = "DB에 저장되어 있는 팀별 프로젝트 정보 조회")
-//    public ResponseEntity<List<TeamWithMemberResponse>> getTeamWithMemberResponsesForProject() {
-//
-//    }
+    @GetMapping("/team/project")
+    @Operation(summary = "DB에 저장되어 있는 팀별 프로젝트 정보 조회")
+    public ResponseEntity<List<TeamWithProjectResponse>> getTeamWithProjectResponses() {
+        return ResponseEntity.ok(teamService.getTeamWithProjectResponses());
+    }
 
     // Report
 
@@ -76,8 +77,6 @@ public class ApiForAiController {
         WeeklyReportDetailResponse response = teamWeeklyReportService.createTeamWeeklyReport(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
-    // TODO Project (team id로 프로젝트 조회)
 
     // TODO LLM One Line Comment (DailyUserReport 테이블에 Comment 컬럼 추가)
 }

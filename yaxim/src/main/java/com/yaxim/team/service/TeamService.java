@@ -1,9 +1,13 @@
 package com.yaxim.team.service;
 
 import com.yaxim.global.auth.jwt.TokenService;
+import com.yaxim.global.for_ai.dto.response.TeamWithProjectResponse;
 import com.yaxim.graph.GraphApiService;
 import com.yaxim.graph.controller.dto.GraphTeamMemberResponse;
 import com.yaxim.graph.controller.dto.GraphTeamResponse;
+import com.yaxim.project.controller.dto.response.ProjectDetailResponse;
+import com.yaxim.project.entity.Project;
+import com.yaxim.project.repository.ProjectRepository;
 import com.yaxim.team.controller.dto.response.TeamMemberResponse;
 import com.yaxim.team.controller.dto.response.TeamResponse;
 import com.yaxim.global.for_ai.dto.response.TeamWithMemberResponse;
@@ -34,6 +38,7 @@ public class TeamService {
     private final GraphApiService graphApiService;
     private final UserRepository userRepository;
     private final TokenService tokenService;
+    private final ProjectRepository projectRepository;
 
     public TeamResponse getUserTeam(Long userId) {
         Users user = userRepository.findById(userId)
@@ -143,8 +148,6 @@ public class TeamService {
                 List<TeamMemberResponse> memberResponses = getTeamMemberResponse(members);
                 return new TeamWithMemberResponse(
                         team.getId(),
-                        team.getCreatedAt(),
-                        team.getUpdatedAt(),
                         team.getName(),
                         team.getDescription(),
                         memberResponses
@@ -153,4 +156,19 @@ public class TeamService {
             .toList();
         }
 
+    public List<TeamWithProjectResponse> getTeamWithProjectResponses() {
+        List<Team> teams = teamRepository.findAll();
+
+        return teams.stream()
+                .map(team -> {
+                    List<Project> projects = projectRepository.findByTeam(team);
+
+                    return new TeamWithProjectResponse(
+                            team.getId(),
+                            team.getName(),
+                            team.getDescription(),
+                            projects.stream().map(ProjectDetailResponse::from).toList()
+                    );
+                }).toList();
+    }
 }
