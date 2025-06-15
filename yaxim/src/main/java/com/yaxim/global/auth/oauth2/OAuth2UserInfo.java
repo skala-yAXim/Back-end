@@ -67,7 +67,6 @@ public class OAuth2UserInfo {
                 .build();
     }
 
-    // Todo 권한 설정 로직 수정 필요
     public Users toEntity() {
         return Users.builder()
                 .name(name)

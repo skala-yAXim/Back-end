@@ -48,6 +48,8 @@ public class CustomOidcUserService extends OidcUserService {
         if(userRepository.existsByEmail(oAuth2UserInfo.getEmail())){
             user = userRepository.findByEmail(oAuth2UserInfo.getEmail())
                     .orElseThrow(UserNotFoundException::new);
+
+            user.setName(oAuth2UserInfo.getName());
         } else {
             log.info("new user");
             user = userRepository.save(oAuth2UserInfo.toEntity());
