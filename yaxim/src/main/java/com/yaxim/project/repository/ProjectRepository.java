@@ -7,11 +7,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     // 팀별 프로젝트 목록 조회 (페이징)
     Page<Project> findByTeam(Team team, Pageable pageable);
+
+    List<Project> findByTeam(Team team);
 
 //    // 프로젝트명으로 검색 (페이징) - 필드명 수정: projectName → name
 //    Page<Project> findByTeamIdAndNameContainingIgnoreCase(String teamId, String name, Pageable pageable);
