@@ -1,6 +1,7 @@
 package com.yaxim.global.for_ai;
 
 import com.yaxim.global.for_ai.dto.request.DailyReportCreateRequest;
+import com.yaxim.global.for_ai.dto.request.TeamWeeklyReportCreateRequest;
 import com.yaxim.global.for_ai.dto.request.WeeklyReportCreateRequest;
 import com.yaxim.report.controller.dto.response.DailyReportDetailResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
@@ -44,6 +45,12 @@ public class ApiForAiController {
         return ResponseEntity.ok(teamService.getTeamWithMemberResponses());
     }
 
+//    @GetMapping("/team/project")
+//    @Operation(summary = "DB에 저장되어 있는 팀별 프로젝트 정보 조회")
+//    public ResponseEntity<List<TeamWithMemberResponse>> getTeamWithMemberResponsesForProject() {
+//
+//    }
+
     // Report
 
     @Operation(summary = "개인 Daily 생성")
@@ -65,8 +72,8 @@ public class ApiForAiController {
     @Operation(summary = "팀 Weekly 생성")
     @PostMapping("/report/team-weekly")
     public ResponseEntity<WeeklyReportDetailResponse> createTeamWeeklyReport(
-            @Valid @RequestBody WeeklyReportCreateRequest request) {
-        WeeklyReportDetailResponse response = teamWeeklyReportService.createTeamWeeklyReport(request.getUserId(), request);
+            @Valid @RequestBody TeamWeeklyReportCreateRequest request) {
+        WeeklyReportDetailResponse response = teamWeeklyReportService.createTeamWeeklyReport(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
