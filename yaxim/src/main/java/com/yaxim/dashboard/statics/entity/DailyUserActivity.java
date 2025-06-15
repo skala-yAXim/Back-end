@@ -28,11 +28,12 @@ public class DailyUserActivity {
 
     private LocalDate reportDate;
     private Long teamsPost;
+    private Long teamsReply;
     private Long emailSend;
     private Long emailReceive;
     private Long docsDocx;
     private Long docsXlsx;
-    private Long docsTxt;
+    private Long docsPptx;
     private Long docsEtc;
     private Long gitPullRequest;
     private Long gitCommit;

@@ -22,7 +22,7 @@ public class AverageStaticsResponse {
     public static class Docs {
         private Double docx;
         private Double xlsx;
-        private Double txt;
+        private Double pptx;
         private Double etc;
     }
 
@@ -45,16 +45,20 @@ public class AverageStaticsResponse {
     @AllArgsConstructor
     public static class Teams {
         private Double post;
+        private Double reply;
     }
 
     public static AverageStaticsResponse from(AverageActivity activity) {
         return new AverageStaticsResponse(
                 activity.getReportDate(),
-                new AverageStaticsResponse.Teams(activity.getTeamsPost()),
+                new AverageStaticsResponse.Teams(
+                        activity.getTeamsPost(),
+                        activity.getTeamsReply()
+                ),
                 new AverageStaticsResponse.Docs(
                         activity.getDocsDocx(),
                         activity.getDocsXlsx(),
-                        (double) 0,
+                        activity.getDocsPptx(),
                         activity.getDocsEtc()
                 ),
                 new AverageStaticsResponse.Email(

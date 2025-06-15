@@ -19,11 +19,12 @@ public class DailyTeamActivity {
 
     private LocalDate reportDate;
     private Long teamsPost;
+    private Long teamsReply;
     private Long emailSend;
     private Long emailReceive;
     private Long docsDocx;
     private Long docsXlsx;
-    private Long docsTxt;
+    private Long docsPptx;
     private Long docsEtc;
     private Long gitPullRequest;
     private Long gitCommit;
@@ -40,11 +41,12 @@ public class DailyTeamActivity {
     public DailyTeamActivity(
             LocalDate reportDate,
             Long teamsPost,
+            Long teamsReply,
             Long emailSend,
             Long emailReceive,
             Long docsDocx,
             Long docsXlsx,
-            Long docsTxt,
+            Long docsPptx,
             Long docsEtc,
             Long gitPullRequest,
             Long gitCommit,
@@ -54,11 +56,12 @@ public class DailyTeamActivity {
     ) {
         this.reportDate = reportDate;
         this.teamsPost = teamsPost;
+        this.teamsReply = teamsReply;
         this.emailSend = emailSend;
         this.emailReceive = emailReceive;
         this.docsDocx = docsDocx;
         this.docsXlsx = docsXlsx;
-        this.docsTxt = docsTxt;
+        this.docsPptx = docsPptx;
         this.docsEtc = docsEtc;
         this.gitPullRequest = gitPullRequest;
         this.gitCommit = gitCommit;

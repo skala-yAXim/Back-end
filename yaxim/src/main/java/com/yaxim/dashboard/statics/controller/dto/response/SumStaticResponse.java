@@ -16,6 +16,7 @@ public class SumStaticResponse {
     @AllArgsConstructor
     public static class Teams {
         private Long post;
+        private Long reply;
     }
 
     @Getter
@@ -23,7 +24,7 @@ public class SumStaticResponse {
     public static class Docs {
         private Long docx;
         private Long xlsx;
-        private Long txt;
+        private Long pptx;
         private Long etc;
 
     }
@@ -47,11 +48,14 @@ public class SumStaticResponse {
 
     public static SumStaticResponse from(SumActivity activity) {
         return new SumStaticResponse(
-                new SumStaticResponse.Teams(activity.getTeamsPost()),
+                new SumStaticResponse.Teams(
+                        activity.getTeamsPost(),
+                        activity.getTeamsReply()
+                ),
                 new SumStaticResponse.Docs(
                         activity.getDocsDocx(),
                         activity.getDocsXlsx(),
-                        (long) 0,
+                        activity.getDocsPptx(),
                         activity.getDocsEtc()
                 ),
                 new SumStaticResponse.Email(

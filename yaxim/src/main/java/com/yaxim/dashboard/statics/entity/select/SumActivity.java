@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SumActivity {
     private Long teamsPost;
+    private Long teamsReply;
     private Long docsDocx;
     private Long docsXlsx;
-    private Long docsTxt;
+    private Long docsPptx;
     private Long docsEtc;
     private Long emailReceive;
     private Long emailSend;
