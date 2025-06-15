@@ -1,15 +1,17 @@
 package com.yaxim.report.service;
 
-import com.yaxim.global.for_ai.dto.request.WeeklyReportCreateRequest;
+import com.yaxim.global.for_ai.dto.request.TeamWeeklyReportCreateRequest;
 import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportResponse;
 import com.yaxim.report.entity.TeamWeeklyReport;
 import com.yaxim.report.exception.ReportAccessDeniedException;
 import com.yaxim.report.exception.ReportNotFoundException;
 import com.yaxim.report.repository.TeamWeeklyReportRepository;
+import com.yaxim.team.entity.Team;
 import com.yaxim.team.entity.TeamMember;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
 import com.yaxim.team.repository.TeamMemberRepository;
+import com.yaxim.team.repository.TeamRepository;
 import com.yaxim.user.entity.Users;
 import com.yaxim.user.exception.UserNotFoundException;
 import com.yaxim.user.repository.UserRepository;
@@ -26,16 +28,18 @@ public class TeamWeeklyReportService {
     private final TeamWeeklyReportRepository teamWeeklyReportRepository;
     private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final TeamRepository teamRepository;
 
     @Transactional
-    public WeeklyReportDetailResponse createTeamWeeklyReport(Long userId, WeeklyReportCreateRequest request) {
-        TeamMember creator = validateUserAndGetTeamMember(userId);
+    public WeeklyReportDetailResponse createTeamWeeklyReport(TeamWeeklyReportCreateRequest request) {
+        Team team = teamRepository.findById(request.getTeamId())
+                .orElseThrow(TeamMemberNotMappedException::new);
 
         TeamWeeklyReport report = TeamWeeklyReport.builder()
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .report(request.getReport())
-                .team(creator.getTeam())
+                .team(team)
                 .build();
 
         teamWeeklyReportRepository.save(report);
