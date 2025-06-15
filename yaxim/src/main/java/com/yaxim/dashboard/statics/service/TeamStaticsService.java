@@ -54,11 +54,12 @@ public class TeamStaticsService {
                         new DailyTeamActivity(
                                 data.getReportDate(),
                                 data.getTeamsPost(),
+                                data.getTeamsReply(),
                                 data.getEmailSend(),
                                 data.getEmailReceive(),
                                 data.getDocsDocx(),
                                 data.getDocsXlsx(),
-                                data.getDocsTxt(),
+                                data.getDocsPptx(),
                                 data.getDocsEtc(),
                                 data.getGitPullRequest(),
                                 data.getGitCommit(),
