@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -59,7 +60,7 @@ public class ProjectController {
     @GetMapping
     @Operation(summary = "프로젝트 목록 조회")
     @ApiResponse(responseCode = "200", description = "조회 성공")
-    public ResponseEntity<List<ProjectResponse>> getProjects(
+    public ResponseEntity<Page<ProjectResponse>> getProjects(
             Pageable pageable,
             JwtAuthentication auth
     ) {
