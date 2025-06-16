@@ -2,6 +2,8 @@ package com.yaxim.report.controller;
 
 import com.yaxim.global.auth.aop.CheckRole;
 import com.yaxim.global.auth.jwt.JwtAuthentication;
+import com.yaxim.report.controller.dto.response.TeamMemberWeeklyDetailResponse;
+import com.yaxim.report.controller.dto.response.TeamMemberWeeklyReportResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportResponse;
 import com.yaxim.report.service.TeamWeeklyReportService;
@@ -26,11 +28,32 @@ public class TeamWeeklyReportController {
 
     private final TeamWeeklyReportService teamWeeklyReportService; // 주입 필요
 
-    // TODO 팀장이 팀원 위클리 보게 해야함
     @Operation(summary = "팀 멤버 보고서 목록 조회")
-    @GetMapping("/TODO")
-    public ResponseEntity<Page<WeeklyReportResponse>> getTeamMemberWeeklyReports() {
-        return null;
+    @GetMapping("/member")
+    public ResponseEntity<Page<TeamMemberWeeklyReportResponse>> getTeamMemberWeeklyReports(
+            Pageable pageable,
+            JwtAuthentication auth
+    ) {
+        return ResponseEntity.ok(
+                teamWeeklyReportService.getTeamMemberWeeklyReports(
+                        pageable,
+                        auth.getUserId()
+                )
+        );
+    }
+
+    @Operation(summary = "팀 멤버 보고서 상세 조회")
+    @GetMapping("/member/{reportId}")
+    public ResponseEntity<TeamMemberWeeklyDetailResponse> getTeamMemberWeeklyReport(
+            @PathVariable("reportId") Long reportId,
+            JwtAuthentication auth
+    ) {
+        return ResponseEntity.ok(
+                teamWeeklyReportService.getTeamMemberWeeklyReport(
+                        reportId,
+                        auth.getUserId()
+                )
+        );
     }
 
     @Operation(summary = "팀 위클리 보고서 목록 조회")
@@ -39,7 +62,7 @@ public class TeamWeeklyReportController {
             @Parameter(hidden = true) JwtAuthentication auth,
             @PageableDefault(sort = "startDate", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<WeeklyReportResponse> reports = teamWeeklyReportService.getTeamWeeklyReports(auth.getUserId(), pageable);
+        Page<WeeklyReportResponse> reports = teamWeeklyReportService.getTeamWeeklyReport(auth.getUserId(), pageable);
         return ResponseEntity.ok(reports);
     }
 
