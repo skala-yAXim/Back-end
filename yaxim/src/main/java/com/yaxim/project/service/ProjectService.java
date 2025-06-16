@@ -98,7 +98,7 @@ public class ProjectService {
     /**
      * 팀별 프로젝트 목록 조회 (페이징) - UI 설계서 기준 10개씩
      */
-    public List<ProjectResponse> getProjects(Pageable pageable, Long userId) {
+    public Page<ProjectResponse> getProjects(Pageable pageable, Long userId) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
@@ -111,16 +111,15 @@ public class ProjectService {
         return getProjectResponseList(projectPage);
     }
 
-    private List<ProjectResponse> getProjectResponseList(Page<Project> projectList) {
-        return projectList.stream()
+    private Page<ProjectResponse> getProjectResponseList(Page<Project> projectList) {
+        return projectList
                 .map(p -> new ProjectResponse(
                         p.getId(),
                         p.getName(),
                         p.getStartDate(),
                         p.getEndDate(),
                         p.calculateStatus()
-                ))
-                .toList();
+                ));
     }
 
     /**
