@@ -1,12 +1,16 @@
 package com.yaxim.report.service;
 
 import com.yaxim.global.for_ai.dto.request.TeamWeeklyReportCreateRequest;
+import com.yaxim.report.controller.dto.response.TeamMemberWeeklyDetailResponse;
+import com.yaxim.report.controller.dto.response.TeamMemberWeeklyReportResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportResponse;
 import com.yaxim.report.entity.TeamWeeklyReport;
+import com.yaxim.report.entity.UserWeeklyReport;
 import com.yaxim.report.exception.ReportAccessDeniedException;
 import com.yaxim.report.exception.ReportNotFoundException;
 import com.yaxim.report.repository.TeamWeeklyReportRepository;
+import com.yaxim.report.repository.UserWeeklyReportRepository;
 import com.yaxim.team.entity.Team;
 import com.yaxim.team.entity.TeamMember;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
@@ -29,6 +33,7 @@ public class TeamWeeklyReportService {
     private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final TeamRepository teamRepository;
+    private final UserWeeklyReportRepository userWeeklyReportRepository;
 
     @Transactional
     public WeeklyReportDetailResponse createTeamWeeklyReport(TeamWeeklyReportCreateRequest request) {
@@ -47,7 +52,7 @@ public class TeamWeeklyReportService {
     }
 
     @Transactional(readOnly = true)
-    public Page<WeeklyReportResponse> getTeamWeeklyReports(Long userId, Pageable pageable) {
+    public Page<WeeklyReportResponse> getTeamWeeklyReport(Long userId, Pageable pageable) {
         // 검증 로직을 헬퍼 메서드로 통합
         TeamMember viewer = validateUserAndGetTeamMember(userId);
 
@@ -60,7 +65,7 @@ public class TeamWeeklyReportService {
 
     @Transactional(readOnly = true)
     public WeeklyReportDetailResponse getReportById(Long reportId, Long userId) {
-        // 1. 요청자의 팀 정보 확인
+        // 1. 요청자 정보 확인
         TeamMember viewer = validateUserAndGetTeamMember(userId);
 
         // 2. 보고서 조회
@@ -77,7 +82,7 @@ public class TeamWeeklyReportService {
 
     @Transactional
     public void deleteReport(Long reportId, Long userId) {
-        // 1. 요청자의 팀 정보 확인
+        // 1. 요청자 정보 확인
         TeamMember deleter = validateUserAndGetTeamMember(userId);
 
         // 2. 보고서 조회
@@ -90,6 +95,39 @@ public class TeamWeeklyReportService {
         }
 
         teamWeeklyReportRepository.delete(report);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TeamMemberWeeklyReportResponse> getTeamMemberWeeklyReports(
+            Pageable pageable,
+            Long userId
+    ) {
+        // 1. 요청자 정보 확인
+        TeamMember viewer = validateUserAndGetTeamMember(userId);
+
+        // 2. 요청자의 팀에 속한 멤버들의 Weekly 조회
+        Page<UserWeeklyReport> report = userWeeklyReportRepository.findByTeam(
+                pageable,
+                viewer.getTeam()
+        );
+
+        return report.map(TeamMemberWeeklyReportResponse::fromTeam);
+    }
+
+    @Transactional(readOnly = true)
+    public TeamMemberWeeklyDetailResponse getTeamMemberWeeklyReport(Long reportId, Long userId) {
+        // 1. 요청자 정보 확인
+        TeamMember viewer = validateUserAndGetTeamMember(userId);
+
+        // 2. reportId로 Weekly 조회
+        UserWeeklyReport report = userWeeklyReportRepository.findById(reportId)
+                .orElseThrow(ReportNotFoundException::new);
+
+        // 3. 요청자의 팀 정보와 reportId로 조회한 보고서의 팀 정보가 일치하는지 확인
+        if (!report.getTeam().getId().equals(viewer.getTeam().getId()))
+            throw new ReportAccessDeniedException();
+
+        return TeamMemberWeeklyDetailResponse.from(report);
     }
 
     /**
