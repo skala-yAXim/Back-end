@@ -3,14 +3,12 @@ package com.yaxim.global.for_ai;
 import com.yaxim.global.for_ai.dto.request.DailyReportCreateRequest;
 import com.yaxim.global.for_ai.dto.request.TeamWeeklyReportCreateRequest;
 import com.yaxim.global.for_ai.dto.request.WeeklyReportCreateRequest;
-import com.yaxim.global.for_ai.dto.response.TeamWithProjectResponse;
+import com.yaxim.global.for_ai.dto.response.TeamWithMemberAndProjectResponse;
 import com.yaxim.report.controller.dto.response.DailyReportDetailResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
 import com.yaxim.report.service.TeamWeeklyReportService;
 import com.yaxim.report.service.UserDailyReportService;
 import com.yaxim.report.service.UserWeeklyReportService;
-import com.yaxim.team.controller.dto.response.TeamResponse;
-import com.yaxim.global.for_ai.dto.response.TeamWithMemberResponse;
 import com.yaxim.team.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,23 +32,23 @@ public class ApiForAiController {
 
     // Team
 
-    @GetMapping("/team/all")
+    @GetMapping("/team-info")
     @Operation(summary = "DB에 저장되어 있는 모든 팀 조회")
-    public ResponseEntity<List<TeamResponse>> getAllTeams() {
-        return ResponseEntity.ok(teamService.getAllTeams());
+    public ResponseEntity<List<TeamWithMemberAndProjectResponse>> getAllTeamsInfo() {
+        return ResponseEntity.ok(teamService.getAllTeamsInfo());
     }
 
-    @GetMapping("/team/all/members")
-    @Operation(summary = "DB에 저장되어 있는 모든 팀 및 팀 멤버 정보 조회")
-    public ResponseEntity<List<TeamWithMemberResponse>> getTeamWithMemberResponses() {
-        return ResponseEntity.ok(teamService.getTeamWithMemberResponses());
-    }
-
-    @GetMapping("/team/project")
-    @Operation(summary = "DB에 저장되어 있는 팀별 프로젝트 정보 조회")
-    public ResponseEntity<List<TeamWithProjectResponse>> getTeamWithProjectResponses() {
-        return ResponseEntity.ok(teamService.getTeamWithProjectResponses());
-    }
+//    @GetMapping("/team/all/members")
+//    @Operation(summary = "DB에 저장되어 있는 모든 팀 및 팀 멤버 정보 조회")
+//    public ResponseEntity<List<TeamWithMemberAndProjectResponse>> getTeamWithMemberResponses() {
+//        return ResponseEntity.ok(teamService.getTeamWithMemberResponses());
+//    }
+//
+//    @GetMapping("/team/project")
+//    @Operation(summary = "DB에 저장되어 있는 팀별 프로젝트 정보 조회")
+//    public ResponseEntity<List<TeamWithProjectResponse>> getTeamWithProjectResponses() {
+//        return ResponseEntity.ok(teamService.getTeamWithProjectResponses());
+//    }
 
     // Report
 

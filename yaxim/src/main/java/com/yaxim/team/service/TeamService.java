@@ -1,7 +1,5 @@
 package com.yaxim.team.service;
 
-import com.yaxim.global.auth.jwt.TokenService;
-import com.yaxim.global.for_ai.dto.response.TeamWithProjectResponse;
 import com.yaxim.graph.GraphApiService;
 import com.yaxim.graph.controller.dto.GraphTeamMemberResponse;
 import com.yaxim.graph.controller.dto.GraphTeamResponse;
@@ -10,7 +8,7 @@ import com.yaxim.project.entity.Project;
 import com.yaxim.project.repository.ProjectRepository;
 import com.yaxim.team.controller.dto.response.TeamMemberResponse;
 import com.yaxim.team.controller.dto.response.TeamResponse;
-import com.yaxim.global.for_ai.dto.response.TeamWithMemberResponse;
+import com.yaxim.global.for_ai.dto.response.TeamWithMemberAndProjectResponse;
 import com.yaxim.team.entity.Team;
 import com.yaxim.team.entity.TeamMember;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
@@ -37,7 +35,6 @@ public class TeamService {
     private final TeamMemberRepository teamMemberRepository;
     private final GraphApiService graphApiService;
     private final UserRepository userRepository;
-    private final TokenService tokenService;
     private final ProjectRepository projectRepository;
 
     public TeamResponse getUserTeam(Long userId) {
@@ -65,14 +62,6 @@ public class TeamService {
         List<TeamMember> members = teamMemberRepository.findByTeamId(teamId);
 
         return getTeamMemberResponse(members);
-    }
-
-    public List<TeamResponse> getAllTeams() {
-        List<Team> teams = teamRepository.findAll();
-
-        return teams.stream()
-                .map(this::getTeamResponse)
-                .toList();
     }
 
     @Transactional
@@ -140,33 +129,20 @@ public class TeamService {
                 }).toList();
     }
 
-    public List<TeamWithMemberResponse> getTeamWithMemberResponses() {
-        List<Team> teams = teamRepository.findAll();
-        return teams.stream()
-                .map(team -> {
-                List<TeamMember> members = teamMemberRepository.findByTeamId(team.getId());
-                List<TeamMemberResponse> memberResponses = getTeamMemberResponse(members);
-                return new TeamWithMemberResponse(
-                        team.getId(),
-                        team.getName(),
-                        team.getDescription(),
-                        memberResponses
-                );
-            })
-            .toList();
-        }
-
-    public List<TeamWithProjectResponse> getTeamWithProjectResponses() {
+    public List<TeamWithMemberAndProjectResponse> getAllTeamsInfo() {
         List<Team> teams = teamRepository.findAll();
 
         return teams.stream()
                 .map(team -> {
+                    List<TeamMember> members = teamMemberRepository.findByTeamId(team.getId());
+                    List<TeamMemberResponse> memberResponses = getTeamMemberResponse(members);
                     List<Project> projects = projectRepository.findByTeam(team);
 
-                    return new TeamWithProjectResponse(
+                    return new TeamWithMemberAndProjectResponse(
                             team.getId(),
                             team.getName(),
                             team.getDescription(),
+                            memberResponses,
                             projects.stream().map(ProjectDetailResponse::from).toList()
                     );
                 }).toList();
