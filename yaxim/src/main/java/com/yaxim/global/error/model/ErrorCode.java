@@ -53,6 +53,9 @@ public enum ErrorCode {
   
     GIT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "GIT_INFO_NOT_FOUND" ),
     GIT_EMAIL_IS_NOT_PROVIDED(HttpStatus.BAD_REQUEST, "GIT_EMAIL_IS_NOT_PROVIDED" ),
+
+    USER_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_COMMENT_NOT_FOUND" ),
+    TEAM_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM_COMMENT_NOT_FOUND" ),
     ;
 
     private final HttpStatus status;
