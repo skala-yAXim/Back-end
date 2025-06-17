@@ -39,10 +39,7 @@ public class TeamService {
     private final ProjectCustomRepository projectCustomRepository;
 
     public TeamResponse getUserTeam(Long userId) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        String teamId = teamMemberRepository.findByEmail(user.getEmail())
+        String teamId = teamMemberRepository.findByUserId(userId)
                 .orElseThrow(TeamMemberNotMappedException::new)
                 .getTeam().getId();
 
@@ -57,10 +54,7 @@ public class TeamService {
             WeeklyTemplateRequest request,
             Long userId
     ) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        Team team = teamMemberRepository.findByEmail(user.getEmail())
+        Team team = teamMemberRepository.findByUserId(userId)
                 .orElseThrow(TeamMemberNotMappedException::new)
                 .getTeam();
 
@@ -70,10 +64,7 @@ public class TeamService {
     }
 
     public List<TeamMemberResponse> getUserTeamMembers(Long userId) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        String teamId = teamMemberRepository.findByEmail(user.getEmail())
+        String teamId = teamMemberRepository.findByUserId(userId)
                 .orElseThrow(TeamMemberNotMappedException::new)
                 .getTeam().getId();
 
@@ -83,19 +74,12 @@ public class TeamService {
     }
 
     @Transactional
-    public TeamResponse loadTeam(Long userId) {
+    public void loadTeam(Long userId) {
         GraphTeamResponse.Team graphTeam = graphApiService.getMyFirstTeam(userId);
 
         if (graphTeam == null) {
             throw new TeamNotFoundException();
         }
-
-        List<GraphTeamMemberResponse.Members> graphTeamMembers = graphApiService.getMyTeamMembers(
-                graphTeam.id,
-                userId
-        );
-
-        boolean isNewTeam = !teamRepository.existsById(graphTeam.id);
 
         Team team = teamRepository.findById(graphTeam.id)
                 .orElseGet(() -> teamRepository.save(new Team(
@@ -106,32 +90,37 @@ public class TeamService {
 
         team.setUpdatedAt(LocalDateTime.now());
 
-        if (isNewTeam) {
-            for (GraphTeamMemberResponse.Members m : graphTeamMembers) {
-                UserRole role = m.roles.isEmpty() ? UserRole.MEMBER : UserRole.LEADER;
-                teamMemberRepository.save(new TeamMember(team, m.getEmail(), role));
-            }
-        } else {
-            team.syncMembers(graphTeamMembers, teamMemberRepository);
-        }
+        Users user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
 
-        return TeamResponse.from(team);
+        List<GraphTeamMemberResponse.Members> graphTeamMembers = graphApiService.getMyTeamMembers(
+                graphTeam.id,
+                userId
+        );
+
+        UserRole role = graphTeamMembers.stream().filter(m -> m.email.equals(user.getEmail()))
+                .findFirst()
+                .filter(m -> !m.roles.isEmpty())
+                .map(m -> UserRole.LEADER).orElse(UserRole.MEMBER);
+
+        TeamMember member = teamMemberRepository.findByUserId(userId)
+                .orElseGet(() -> teamMemberRepository.save(new TeamMember(
+                        team,
+                        user
+                )));
+
+        member.updateRole(role);
     }
 
     private List<TeamMemberResponse> getTeamMemberResponse(List<TeamMember> members) {
         return members.stream()
                 .map(m -> {
-                    Users user = userRepository.findByEmail(m.getEmail())
-                            .orElseGet(() ->
-                                    new Users(
-                                            0,
-                                            "아직 가입하지 않은 사용자입니다.",
-                                            m.getEmail()));
+                    Users user = m.getUser();
 
                     return new TeamMemberResponse(
                             user.getId(),
                             user.getName(),
-                            m.getEmail()
+                            user.getEmail()
                     );
                 }).toList();
     }

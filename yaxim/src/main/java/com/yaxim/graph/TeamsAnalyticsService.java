@@ -2,11 +2,8 @@ package com.yaxim.graph;
 
 import com.yaxim.graph.controller.dto.*;
 import com.yaxim.graph.exception.*;
-import com.yaxim.team.entity.TeamMember;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
 import com.yaxim.team.repository.TeamMemberRepository;
-import com.yaxim.user.entity.Users;
-import com.yaxim.user.exception.UserNotFoundException;
 import com.yaxim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,10 +51,7 @@ public class TeamsAnalyticsService {
             throw new TeamActivityDetailApiCallFailed();
         }
 
-        Users user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        String teamId = teamMemberRepository.findByEmail(user.getEmail())
+        String teamId = teamMemberRepository.findByUserId(userId)
                 .orElseThrow(TeamMemberNotMappedException::new)
                 .getTeam().getId();
 
@@ -83,34 +77,6 @@ public class TeamsAnalyticsService {
         return response;
     }
 
-    public PersonalDashboardResponse getPersonalDashboard(Long userId) {
-        TeamsUserActivityUserDetailResponse data = getTeamsUserActivityUserDetail(userId);
-
-        Users user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        // ✅ 3. 팀 소속 사용자 리스트 가져오기
-        TeamMember teamMembers = teamMemberRepository.findByEmail(user.getEmail())
-                .orElseThrow(TeamMemberNotMappedException::new);
-
-        // ✅ 5. API 결과에서 팀 소속 사용자만 필터링
-        TeamsUserActivityUserDetailResponse.UserActivity userDetailData = data.getValue().stream()
-                .filter(activity -> teamMembers.getEmail().equals(activity.getUserPrincipalName()))
-                .findFirst()
-                .orElseThrow(UserActivityUserDetailApiCallFailedException::new);
-
-//        TeamsUserActivityCountsResponse userCountsData = getTeamsUserActivityCounts(userId);
-
-        // 객체에서 직접 데이터 추출
-        PersonalDashboardResponse.PersonalMetrics personalMetrics = extractPersonalMetrics(userDetailData);
-//        List<PersonalDashboardResponse.PersonalWeeklyData> weeklyChart = extractWeeklyChart(userCountsData);
-
-        return PersonalDashboardResponse.builder()
-                .personalMetrics(personalMetrics)
-//                .weeklyChart(weeklyChart)
-                .build();
-    }
-
     private PersonalDashboardResponse.PersonalMetrics extractPersonalMetrics(TeamsUserActivityUserDetailResponse.UserActivity user) {
         Integer totalActivity = user.getTeamChatMessageCount() + user.getPrivateChatMessageCount()
                 + user.getPostMessages() + user.getMeetingCount() + user.getCallCount();
@@ -125,34 +91,6 @@ public class TeamsAnalyticsService {
                 .totalActivity(totalActivity)
                 .build();
     }
-
-//    private List<PersonalDashboardResponse.PersonalWeeklyData> extractWeeklyChart(TeamsUserActivityCountsResponse userCountsData) {
-//        List<PersonalDashboardResponse.PersonalWeeklyData> weeklyData = new ArrayList<>();
-//
-//        if (userCountsData.getValue() != null) {
-//            for (TeamsUserActivityCountsResponse.UserActivityCount dayData : userCountsData.getValue()) {
-//                String reportDate = dayData.getReportDate();
-//
-//                Integer dailyTotal = dayData.getTeamChatMessages() + dayData.getPrivateChatMessages() + dayData.getPostMessages()
-//                        + dayData.getPostMessages() + dayData.getCalls();
-//
-//                PersonalDashboardResponse.PersonalWeeklyData dailyData =
-//                        PersonalDashboardResponse.PersonalWeeklyData.builder()
-//                                .date(reportDate.substring(5))
-//                                .teamChats(dayData.getTeamChatMessages())
-//                                .privateChats(dayData.getPrivateChatMessages())
-//                                .posts(dayData.getPostMessages())
-//                                .meetings(dayData.getMeetings())
-//                                .calls(dayData.getCalls())
-//                                .dailyTotal(dailyTotal)
-//                                .build();
-//
-//                weeklyData.add(dailyData);
-//            }
-//        }
-//
-//        return weeklyData;
-//    }
 
     public TeamDashboardResponse getTeamDashboard(Long userId) {
         log.info("팀 대시보드 데이터 조회: userId: {}", userId);
