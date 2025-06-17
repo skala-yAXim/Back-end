@@ -5,6 +5,7 @@ import com.yaxim.graph.controller.dto.GraphTeamMemberResponse;
 import com.yaxim.graph.controller.dto.GraphTeamResponse;
 import com.yaxim.project.controller.dto.response.ProjectDetailResponse;
 import com.yaxim.project.entity.Project;
+import com.yaxim.project.repository.ProjectCustomRepository;
 import com.yaxim.project.repository.ProjectRepository;
 import com.yaxim.team.controller.dto.response.TeamMemberResponse;
 import com.yaxim.team.controller.dto.response.TeamResponse;
@@ -35,7 +36,7 @@ public class TeamService {
     private final TeamMemberRepository teamMemberRepository;
     private final GraphApiService graphApiService;
     private final UserRepository userRepository;
-    private final ProjectRepository projectRepository;
+    private final ProjectCustomRepository projectCustomRepository;
 
     public TeamResponse getUserTeam(Long userId) {
         Users user = userRepository.findById(userId)
@@ -136,7 +137,7 @@ public class TeamService {
                 .map(team -> {
                     List<TeamMember> members = teamMemberRepository.findByTeamId(team.getId());
                     List<TeamMemberResponse> memberResponses = getTeamMemberResponse(members);
-                    List<Project> projects = projectRepository.findByTeam(team);
+                    List<Project> projects = projectCustomRepository.findAllInProgress();
 
                     return new TeamWithMemberAndProjectResponse(
                             team.getId(),
