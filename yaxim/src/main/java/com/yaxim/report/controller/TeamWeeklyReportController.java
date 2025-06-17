@@ -32,7 +32,7 @@ public class TeamWeeklyReportController {
     @Operation(summary = "팀 멤버 보고서 목록 조회")
     @GetMapping("/member")
     public ResponseEntity<Page<TeamMemberWeeklyReportResponse>> getTeamMemberWeeklyReports(
-            TeamMemberWeeklyPageRequest request,
+            @RequestBody TeamMemberWeeklyPageRequest request,
             Pageable pageable,
             JwtAuthentication auth
     ) {
