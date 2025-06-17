@@ -1,5 +1,6 @@
 package com.yaxim.report.service;
 
+import com.yaxim.dashboard.comment.service.CommentService;
 import com.yaxim.global.for_ai.dto.request.DailyReportCreateRequest;
 import com.yaxim.report.controller.dto.response.DailyReportDetailResponse;
 import com.yaxim.report.controller.dto.response.DailyReportResponse;
@@ -26,11 +27,13 @@ public class UserDailyReportService {
     private final UserDailyReportRepository dailyReportRepository;
     private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final CommentService commentService;
 
     @Transactional
     public DailyReportDetailResponse createDailyReport(Long userId, DailyReportCreateRequest request) {
         Users user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        TeamMember teamMember = teamMemberRepository.findByEmail(user.getEmail()).orElseThrow(TeamMemberNotMappedException::new);
+        TeamMember teamMember = teamMemberRepository.findByUserId(userId)
+                .orElseThrow(TeamMemberNotMappedException::new);
 
         UserDailyReport report = UserDailyReport.builder()
                 .date(request.getDate())
@@ -40,6 +43,13 @@ public class UserDailyReportService {
                 .build();
 
         dailyReportRepository.save(report);
+
+        commentService.addComment(
+                user,
+                (String) report.getReport()
+                        .getOrDefault("daily_short_review", "")
+        );
+
         return DailyReportDetailResponse.from(report);
     }
 
