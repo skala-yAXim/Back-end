@@ -49,7 +49,7 @@ public class TeamService {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(TeamNotFoundException::new);
 
-        return getTeamResponse(team);
+        return TeamResponse.from(team);
     }
 
     public List<TeamMemberResponse> getUserTeamMembers(Long userId) {
@@ -98,24 +98,13 @@ public class TeamService {
             team.syncMembers(graphTeamMembers, teamMemberRepository);
         }
 
-        return getTeamResponse(team);
-    }
-
-    private TeamResponse getTeamResponse(Team team) {
-        return new TeamResponse(
-                team.getId(),
-                team.getCreatedAt(),
-                team.getUpdatedAt(),
-                team.getName(),
-                team.getDescription()
-        );
+        return TeamResponse.from(team);
     }
 
     private List<TeamMemberResponse> getTeamMemberResponse(List<TeamMember> members) {
         return members.stream()
                 .map(m -> {
                     Users user = userRepository.findByEmail(m.getEmail())
-//                            .orElseThrow(UserNotFoundException::new);
                             .orElseGet(() ->
                                     new Users(
                                             0,
