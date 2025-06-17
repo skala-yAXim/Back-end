@@ -2,6 +2,7 @@ package com.yaxim.team.controller;
 
 import com.yaxim.global.auth.aop.CheckRole;
 import com.yaxim.global.auth.jwt.JwtAuthentication;
+import com.yaxim.team.controller.dto.request.WeeklyTemplateRequest;
 import com.yaxim.team.controller.dto.response.TeamMemberResponse;
 import com.yaxim.team.controller.dto.response.TeamResponse;
 import com.yaxim.team.service.TeamService;
@@ -32,6 +33,16 @@ public class TeamController {
     @GetMapping
     public ResponseEntity<TeamResponse> getMyTeam(JwtAuthentication auth) {
         return ResponseEntity.ok(teamService.getUserTeam(auth.getUserId()));
+    }
+
+    @CheckRole(UserRole.LEADER)
+    @Operation(summary = "팀 위클리 템플릿 등록/수정")
+    @PostMapping("/template")
+    public void updateTemplate(
+            WeeklyTemplateRequest request,
+            JwtAuthentication auth
+    ) {
+        teamService.updateTemplate(request, auth.getUserId());
     }
 
     @CheckRole(UserRole.LEADER)
