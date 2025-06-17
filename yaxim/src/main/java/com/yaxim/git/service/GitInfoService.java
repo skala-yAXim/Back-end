@@ -80,7 +80,7 @@ public class GitInfoService {
 
         Users user = info.getUser();
 
-        TeamMember member = teamMemberRepository.findByEmail(user.getEmail())
+        TeamMember member = teamMemberRepository.findByUserId(user.getId())
                 .orElseThrow(UserNotFoundException::new);
 
         if (!member.getRole().isLeader()) throw new UserHasNoAuthorityException();
