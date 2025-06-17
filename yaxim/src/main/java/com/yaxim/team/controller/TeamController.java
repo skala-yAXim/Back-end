@@ -39,7 +39,7 @@ public class TeamController {
     @Operation(summary = "팀 위클리 템플릿 등록/수정")
     @PostMapping("/template")
     public void updateTemplate(
-            WeeklyTemplateRequest request,
+            @RequestBody WeeklyTemplateRequest request,
             JwtAuthentication auth
     ) {
         teamService.updateTemplate(request, auth.getUserId());
@@ -57,14 +57,14 @@ public class TeamController {
         return ResponseEntity.ok(teamService.getUserTeamMembers(auth.getUserId()));
     }
 
-    @Operation(summary = "팀 정보 동기화", description = "Microsoft Teams에 등록되어 있는 팀 정보와 동기화합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "토큰 유효함"),
-            @ApiResponse(responseCode = "401", description = "토큰 유효하지 않음 또는 없음"),
-            @ApiResponse(responseCode = "404", description = "팀 정보를 찾을 수 없음")
-    })
-    @PostMapping("/load")
-    public ResponseEntity<TeamResponse> initTeam(JwtAuthentication auth) {
-        return ResponseEntity.ok(teamService.loadTeam(auth.getUserId()));
-    }
+//    @Operation(summary = "팀 정보 동기화", description = "Microsoft Teams에 등록되어 있는 팀 정보와 동기화합니다.")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "토큰 유효함"),
+//            @ApiResponse(responseCode = "401", description = "토큰 유효하지 않음 또는 없음"),
+//            @ApiResponse(responseCode = "404", description = "팀 정보를 찾을 수 없음")
+//    })
+//    @PostMapping("/load")
+//    public ResponseEntity<TeamResponse> initTeam(JwtAuthentication auth) {
+//        return ResponseEntity.ok(teamService.loadTeam(auth.getUserId()));
+//    }
 }
