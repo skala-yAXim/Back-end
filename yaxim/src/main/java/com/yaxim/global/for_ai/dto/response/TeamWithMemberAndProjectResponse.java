@@ -13,6 +13,7 @@ public class TeamWithMemberAndProjectResponse {
     private String id;
     private String name;
     private String description;
+    private String weeklyTemplate;
     private List<TeamMemberResponse> members;
     private List<ProjectDetailResponse> projects;
 }
