@@ -12,9 +12,7 @@ import com.yaxim.project.repository.ProjectRepository;
 import com.yaxim.team.entity.Team;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
 import com.yaxim.team.repository.TeamMemberRepository;
-import com.yaxim.user.entity.Users;
 import com.yaxim.user.exception.UserHasNoAuthorityException;
-import com.yaxim.user.exception.UserNotFoundException;
 import com.yaxim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,10 +49,7 @@ public class ProjectService {
         validateProjectInfo(request);
         validateDateRange(request.getStartDate(), request.getEndDate());
 
-        Users user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        Team team = teamMemberRepository.findByEmail(user.getEmail())
+        Team team = teamMemberRepository.findByUserId(userId)
                 .orElseThrow(TeamMemberNotMappedException::new)
                 .getTeam();
 
@@ -105,10 +100,7 @@ public class ProjectService {
             Pageable pageable,
             Long userId
     ) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        Team team = teamMemberRepository.findByEmail(user.getEmail())
+        Team team = teamMemberRepository.findByUserId(userId)
                 .orElseThrow(TeamMemberNotMappedException::new)
                 .getTeam();
 
@@ -146,10 +138,7 @@ public class ProjectService {
             validateFileUpload(request.getFiles());
         }
 
-        Users user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        Team team = teamMemberRepository.findByEmail(user.getEmail())
+        Team team = teamMemberRepository.findByUserId(userId)
                 .orElseThrow(TeamMemberNotMappedException::new)
                 .getTeam();
 
