@@ -1,11 +1,13 @@
 package com.yaxim.project.service;
 
 import com.yaxim.project.controller.dto.request.ProjectCreateRequest;
+import com.yaxim.project.controller.dto.request.ProjectSearchRequest;
 import com.yaxim.project.controller.dto.request.ProjectUpdateRequest;
 import com.yaxim.project.controller.dto.response.ProjectDetailResponse;
 import com.yaxim.project.controller.dto.response.ProjectResponse;
 import com.yaxim.project.entity.Project;
 import com.yaxim.project.exception.*;
+import com.yaxim.project.repository.ProjectCustomRepository;
 import com.yaxim.project.repository.ProjectRepository;
 import com.yaxim.team.entity.Team;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
@@ -23,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -36,6 +37,7 @@ public class ProjectService {
     private final ProjectFileService projectFileService;
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
+    private final ProjectCustomRepository projectCustomRepository;
 
     /**
      * 프로젝트 생성 (파일 포함/미포함 통합)
@@ -98,7 +100,11 @@ public class ProjectService {
     /**
      * 팀별 프로젝트 목록 조회 (페이징) - UI 설계서 기준 10개씩
      */
-    public Page<ProjectResponse> getProjects(Pageable pageable, Long userId) {
+    public Page<ProjectResponse> getProjects(
+            ProjectSearchRequest request,
+            Pageable pageable,
+            Long userId
+    ) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
@@ -106,7 +112,11 @@ public class ProjectService {
                 .orElseThrow(TeamMemberNotMappedException::new)
                 .getTeam();
 
-        Page<Project> projectPage = projectRepository.findByTeam(team, pageable);
+        Page<Project> projectPage = projectCustomRepository.findByTeamAndProjectName(
+                team,
+                request.getName(),
+                pageable
+        );
 
         return getProjectResponseList(projectPage);
     }

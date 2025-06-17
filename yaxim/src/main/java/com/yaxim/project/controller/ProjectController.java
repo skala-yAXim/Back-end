@@ -3,6 +3,7 @@ package com.yaxim.project.controller;
 import com.yaxim.global.auth.aop.CheckRole;
 import com.yaxim.global.auth.jwt.JwtAuthentication;
 import com.yaxim.project.controller.dto.request.ProjectCreateRequest;
+import com.yaxim.project.controller.dto.request.ProjectSearchRequest;
 import com.yaxim.project.controller.dto.request.ProjectUpdateRequest;
 import com.yaxim.project.controller.dto.response.ProjectDetailResponse;
 import com.yaxim.project.controller.dto.response.ProjectResponse;
@@ -21,8 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * 프로젝트 관리 컨트롤러 (통합 버전)
@@ -61,11 +60,13 @@ public class ProjectController {
     @Operation(summary = "프로젝트 목록 조회")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     public ResponseEntity<Page<ProjectResponse>> getProjects(
+            ProjectSearchRequest request,
             Pageable pageable,
             JwtAuthentication auth
     ) {
         return ResponseEntity.ok(
                 projectService.getProjects(
+                        request,
                         pageable,
                         auth.getUserId()
                 )
