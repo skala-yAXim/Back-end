@@ -30,7 +30,7 @@ public class TeamWeeklyReportController {
     private final TeamWeeklyReportService teamWeeklyReportService; // 주입 필요
 
     @Operation(summary = "팀 멤버 보고서 목록 조회")
-    @GetMapping("/member")
+    @PostMapping("/member")
     public ResponseEntity<Page<TeamMemberWeeklyReportResponse>> getTeamMemberWeeklyReports(
             @RequestBody TeamMemberWeeklyPageRequest request,
             Pageable pageable,
