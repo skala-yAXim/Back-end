@@ -1,5 +1,6 @@
 package com.yaxim.global.auth.oauth2;
 
+import com.yaxim.team.service.TeamService;
 import com.yaxim.user.entity.Users;
 import com.yaxim.user.exception.UserNotFoundException;
 import com.yaxim.user.repository.UserRepository;
@@ -51,7 +52,6 @@ public class CustomOidcUserService extends OidcUserService {
 
             user.setName(oAuth2UserInfo.getName());
         } else {
-            log.info("new user");
             user = userRepository.save(oAuth2UserInfo.toEntity());
         }
     }

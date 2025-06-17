@@ -9,6 +9,8 @@ import com.yaxim.global.auth.jwt.TokenService;
 import com.yaxim.global.auth.jwt.JwtProvider;
 import com.yaxim.global.auth.jwt.JwtToken;
 import com.yaxim.global.auth.jwt.exception.TokenNotProvidedException;
+import com.yaxim.team.entity.TeamMember;
+import com.yaxim.team.repository.TeamMemberRepository;
 import com.yaxim.team.service.TeamService;
 import com.yaxim.user.entity.Users;
 import com.yaxim.user.exception.UserNotFoundException;
@@ -36,6 +38,7 @@ import java.time.Duration;
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
+    private final TeamMemberRepository teamMemberRepository;
     @Value("${redirect.uri.success}")
     private String URI;
     private final TokenService tokenService;
@@ -75,7 +78,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // OIDC Access Token을 레디스에 저장
         tokenService.storeOidcToken(user.getId().toString(), accessToken, Duration.ofHours(1));
 
-        // Teams 정보와 동기화
+        // Teams 정보와 동기화 (내 정보만 저장)
         teamService.loadTeam(user.getId());
 
         // JWT Token 발급
