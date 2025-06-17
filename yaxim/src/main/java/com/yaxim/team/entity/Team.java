@@ -24,6 +24,9 @@ public class Team extends BaseEntity {
     private String description;
     @Setter
     private String installationId;
+    @Lob
+    @Setter
+    private String weeklyTemplate;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TeamMember> members;

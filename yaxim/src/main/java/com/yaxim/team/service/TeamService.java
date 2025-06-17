@@ -6,7 +6,7 @@ import com.yaxim.graph.controller.dto.GraphTeamResponse;
 import com.yaxim.project.controller.dto.response.ProjectDetailResponse;
 import com.yaxim.project.entity.Project;
 import com.yaxim.project.repository.ProjectCustomRepository;
-import com.yaxim.project.repository.ProjectRepository;
+import com.yaxim.team.controller.dto.request.WeeklyTemplateRequest;
 import com.yaxim.team.controller.dto.response.TeamMemberResponse;
 import com.yaxim.team.controller.dto.response.TeamResponse;
 import com.yaxim.global.for_ai.dto.response.TeamWithMemberAndProjectResponse;
@@ -49,7 +49,24 @@ public class TeamService {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(TeamNotFoundException::new);
 
-        return getTeamResponse(team);
+        return TeamResponse.from(team);
+    }
+
+    @Transactional
+    public void updateTemplate(
+            WeeklyTemplateRequest request,
+            Long userId
+    ) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        Team team = teamMemberRepository.findByEmail(user.getEmail())
+                .orElseThrow(TeamMemberNotMappedException::new)
+                .getTeam();
+
+        team.setWeeklyTemplate(
+                request.getTemplate()
+        );
     }
 
     public List<TeamMemberResponse> getUserTeamMembers(Long userId) {
@@ -98,24 +115,13 @@ public class TeamService {
             team.syncMembers(graphTeamMembers, teamMemberRepository);
         }
 
-        return getTeamResponse(team);
-    }
-
-    private TeamResponse getTeamResponse(Team team) {
-        return new TeamResponse(
-                team.getId(),
-                team.getCreatedAt(),
-                team.getUpdatedAt(),
-                team.getName(),
-                team.getDescription()
-        );
+        return TeamResponse.from(team);
     }
 
     private List<TeamMemberResponse> getTeamMemberResponse(List<TeamMember> members) {
         return members.stream()
                 .map(m -> {
                     Users user = userRepository.findByEmail(m.getEmail())
-//                            .orElseThrow(UserNotFoundException::new);
                             .orElseGet(() ->
                                     new Users(
                                             0,
@@ -143,6 +149,7 @@ public class TeamService {
                             team.getId(),
                             team.getName(),
                             team.getDescription(),
+                            team.getWeeklyTemplate(),
                             memberResponses,
                             projects.stream().map(ProjectDetailResponse::from).toList()
                     );
