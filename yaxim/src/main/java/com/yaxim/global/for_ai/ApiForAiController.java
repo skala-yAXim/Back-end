@@ -38,18 +38,6 @@ public class ApiForAiController {
         return ResponseEntity.ok(teamService.getAllTeamsInfo());
     }
 
-//    @GetMapping("/team/all/members")
-//    @Operation(summary = "DB에 저장되어 있는 모든 팀 및 팀 멤버 정보 조회")
-//    public ResponseEntity<List<TeamWithMemberAndProjectResponse>> getTeamWithMemberResponses() {
-//        return ResponseEntity.ok(teamService.getTeamWithMemberResponses());
-//    }
-//
-//    @GetMapping("/team/project")
-//    @Operation(summary = "DB에 저장되어 있는 팀별 프로젝트 정보 조회")
-//    public ResponseEntity<List<TeamWithProjectResponse>> getTeamWithProjectResponses() {
-//        return ResponseEntity.ok(teamService.getTeamWithProjectResponses());
-//    }
-
     // Report
 
     @Operation(summary = "개인 Daily 생성")
