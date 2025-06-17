@@ -8,11 +8,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Repository
 public interface UserDailyReportRepository extends JpaRepository<UserDailyReport, Long> {
 
     @Query(value = "SELECT r FROM UserDailyReport r JOIN FETCH r.user JOIN FETCH r.team WHERE r.user.id = :userId",
             countQuery = "SELECT count(r) FROM UserDailyReport r WHERE r.user.id = :userId")
     Page<UserDailyReport> findByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    List<UserDailyReport> findByUserIdAndDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
 }
 

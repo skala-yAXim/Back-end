@@ -1,8 +1,6 @@
 package com.yaxim.global.for_ai;
 
-import com.yaxim.global.for_ai.dto.request.DailyReportCreateRequest;
-import com.yaxim.global.for_ai.dto.request.TeamWeeklyReportCreateRequest;
-import com.yaxim.global.for_ai.dto.request.WeeklyReportCreateRequest;
+import com.yaxim.global.for_ai.dto.request.*;
 import com.yaxim.global.for_ai.dto.response.TeamWithMemberAndProjectResponse;
 import com.yaxim.report.controller.dto.response.DailyReportDetailResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
@@ -64,5 +62,23 @@ public class ApiForAiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // TODO LLM One Line Comment (DailyUserReport 테이블에 Comment 컬럼 추가)
+    @Operation(summary = "User ID로 개인 데일리 불러오기")
+    @PostMapping("/user-daily")
+    public ResponseEntity<List<DailyReportDetailResponse>> getMyDailyReport(
+            @RequestBody UserDailyListRequest request
+            ) {
+        return ResponseEntity.ok(
+                userDailyReportService.getUserDailyReport(request)
+        );
+    }
+
+    @Operation(summary = "Team ID로 개인 위클리 불러오기")
+    @PostMapping("/user-weekly")
+    public ResponseEntity<List<WeeklyReportDetailResponse>> getMyWeeklyReport(
+            @RequestBody UserWeeklyListRequest request
+            ) {
+        return ResponseEntity.ok(
+                userDailyReportService.getUserWeeklyReport(request)
+        );
+    }
 }

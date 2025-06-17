@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Repository
 public interface UserWeeklyReportRepository extends JpaRepository<UserWeeklyReport, Long> {
 
@@ -16,6 +19,9 @@ public interface UserWeeklyReportRepository extends JpaRepository<UserWeeklyRepo
             countQuery = "SELECT count(r) FROM UserWeeklyReport r WHERE r.user.id = :userId")
     Page<UserWeeklyReport> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
-    Page<UserWeeklyReport> findByTeam(Pageable pageable, Team team);
+    List<UserWeeklyReport> findByTeam(Team team);
+    List<UserWeeklyReport> findByTeamIdAndStartDateAndEndDate(
+            String teamId, LocalDate startDate, LocalDate endDate
+    );
 }
 
