@@ -1,6 +1,7 @@
 package com.yaxim.report.service;
 
 import com.yaxim.global.for_ai.dto.request.TeamWeeklyReportCreateRequest;
+import com.yaxim.report.controller.dto.request.TeamMemberWeeklyPageRequest;
 import com.yaxim.report.controller.dto.response.TeamMemberWeeklyDetailResponse;
 import com.yaxim.report.controller.dto.response.TeamMemberWeeklyReportResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
@@ -9,6 +10,7 @@ import com.yaxim.report.entity.TeamWeeklyReport;
 import com.yaxim.report.entity.UserWeeklyReport;
 import com.yaxim.report.exception.ReportAccessDeniedException;
 import com.yaxim.report.exception.ReportNotFoundException;
+import com.yaxim.report.repository.TeamMemberWeeklyPageRepository;
 import com.yaxim.report.repository.TeamWeeklyReportRepository;
 import com.yaxim.report.repository.UserWeeklyReportRepository;
 import com.yaxim.team.entity.Team;
@@ -34,6 +36,7 @@ public class TeamWeeklyReportService {
     private final TeamMemberRepository teamMemberRepository;
     private final TeamRepository teamRepository;
     private final UserWeeklyReportRepository userWeeklyReportRepository;
+    private final TeamMemberWeeklyPageRepository teamMemberWeeklyPageRepository;
 
     @Transactional
     public WeeklyReportDetailResponse createTeamWeeklyReport(TeamWeeklyReportCreateRequest request) {
@@ -99,6 +102,7 @@ public class TeamWeeklyReportService {
 
     @Transactional(readOnly = true)
     public Page<TeamMemberWeeklyReportResponse> getTeamMemberWeeklyReports(
+            TeamMemberWeeklyPageRequest request,
             Pageable pageable,
             Long userId
     ) {
@@ -106,12 +110,13 @@ public class TeamWeeklyReportService {
         TeamMember viewer = validateUserAndGetTeamMember(userId);
 
         // 2. 요청자의 팀에 속한 멤버들의 Weekly 조회
-        Page<UserWeeklyReport> report = userWeeklyReportRepository.findByTeam(
-                pageable,
-                viewer.getTeam()
+        Page<UserWeeklyReport> reports = teamMemberWeeklyPageRepository.findTeamMemberWeekly(
+                request,
+                viewer.getTeam(),
+                pageable
         );
 
-        return report.map(TeamMemberWeeklyReportResponse::fromTeam);
+        return reports.map(TeamMemberWeeklyReportResponse::fromTeam);
     }
 
     @Transactional(readOnly = true)

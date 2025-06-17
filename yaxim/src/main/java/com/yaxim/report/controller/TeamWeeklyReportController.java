@@ -2,6 +2,7 @@ package com.yaxim.report.controller;
 
 import com.yaxim.global.auth.aop.CheckRole;
 import com.yaxim.global.auth.jwt.JwtAuthentication;
+import com.yaxim.report.controller.dto.request.TeamMemberWeeklyPageRequest;
 import com.yaxim.report.controller.dto.response.TeamMemberWeeklyDetailResponse;
 import com.yaxim.report.controller.dto.response.TeamMemberWeeklyReportResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
@@ -31,11 +32,13 @@ public class TeamWeeklyReportController {
     @Operation(summary = "팀 멤버 보고서 목록 조회")
     @GetMapping("/member")
     public ResponseEntity<Page<TeamMemberWeeklyReportResponse>> getTeamMemberWeeklyReports(
+            TeamMemberWeeklyPageRequest request,
             Pageable pageable,
             JwtAuthentication auth
     ) {
         return ResponseEntity.ok(
                 teamWeeklyReportService.getTeamMemberWeeklyReports(
+                        request,
                         pageable,
                         auth.getUserId()
                 )
