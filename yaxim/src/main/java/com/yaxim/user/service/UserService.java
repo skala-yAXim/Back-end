@@ -41,7 +41,7 @@ public class UserService {
     }
 
     private UserInfoResponse getUserResponse(Users user) {
-        TeamMember member = teamMemberRepository.findByEmail(user.getEmail())
+        TeamMember member = teamMemberRepository.findByUserId(user.getId())
                 .orElseThrow(UserNotFoundException::new);
 
         GitInfo gitInfo = gitInfoRepository.findByUser(user)

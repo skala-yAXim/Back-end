@@ -30,7 +30,8 @@ public class UserWeeklyReportService {
     @Transactional
     public WeeklyReportDetailResponse createWeeklyReport(Long userId, WeeklyReportCreateRequest request) {
         Users user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        TeamMember teamMember = teamMemberRepository.findByEmail(user.getEmail()).orElseThrow(TeamMemberNotMappedException::new);
+        TeamMember teamMember = teamMemberRepository.findByUserId(userId)
+                .orElseThrow(TeamMemberNotMappedException::new);
 
         UserWeeklyReport report = UserWeeklyReport.builder()
                 .startDate(request.getStartDate())

@@ -14,7 +14,6 @@ import com.yaxim.team.exception.TeamMemberNotMappedException;
 import com.yaxim.team.repository.TeamMemberRepository;
 import com.yaxim.team.repository.TeamRepository;
 import com.yaxim.user.entity.Users;
-import com.yaxim.user.exception.UserNotFoundException;
 import com.yaxim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +42,7 @@ public class TeamStaticsService {
         if (hasData) {
             activities = teamStaticsRepository.findAllByTeam(team);
         } else {
-            List<Users> users = userRepository.findAllByEmailIn(
-                    teamMemberRepository.getEmailsByTeamIn(team)
-            );
+            List<Users> users = teamMemberRepository.getUsersByTeamIn(team);
 
             for (int i = 0; i < 7; i++) {
                 TeamActivity data = userStaticsRepository.getTeamActivityByWeekdayAndUser(Weekday.of(i), users);
@@ -111,10 +108,7 @@ public class TeamStaticsService {
     }
 
     private Team getTeamByUserId(Long userId) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        return teamMemberRepository.findByEmail(user.getEmail())
+        return teamMemberRepository.findByUserId(userId)
                 .orElseThrow(TeamMemberNotMappedException::new)
                 .getTeam();
     }

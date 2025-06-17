@@ -1,5 +1,6 @@
 package com.yaxim.report.service;
 
+import com.yaxim.dashboard.comment.service.CommentService;
 import com.yaxim.global.for_ai.dto.request.TeamWeeklyReportCreateRequest;
 import com.yaxim.report.controller.dto.request.TeamMemberWeeklyPageRequest;
 import com.yaxim.report.controller.dto.response.TeamMemberWeeklyDetailResponse;
@@ -18,8 +19,6 @@ import com.yaxim.team.entity.TeamMember;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
 import com.yaxim.team.repository.TeamMemberRepository;
 import com.yaxim.team.repository.TeamRepository;
-import com.yaxim.user.entity.Users;
-import com.yaxim.user.exception.UserNotFoundException;
 import com.yaxim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,6 +36,7 @@ public class TeamWeeklyReportService {
     private final TeamRepository teamRepository;
     private final UserWeeklyReportRepository userWeeklyReportRepository;
     private final TeamMemberWeeklyPageRepository teamMemberWeeklyPageRepository;
+    private final CommentService commentService;
 
     @Transactional
     public WeeklyReportDetailResponse createTeamWeeklyReport(TeamWeeklyReportCreateRequest request) {
@@ -51,6 +51,13 @@ public class TeamWeeklyReportService {
                 .build();
 
         teamWeeklyReportRepository.save(report);
+
+        commentService.addComment(
+                team,
+                (String) report.getReport()
+                        .getOrDefault("weekly_short_review", "")
+        );
+
         return WeeklyReportDetailResponse.from(report);
     }
 
@@ -141,12 +148,8 @@ public class TeamWeeklyReportService {
      * @return TeamMember 객체
      */
     private TeamMember validateUserAndGetTeamMember(Long userId) {
-        // 1. 사용자 조회
-        Users user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        // 2. 사용자의 이메일로 팀 멤버 정보 조회 (팀 소속 여부 확인)
-        return teamMemberRepository.findByEmail(user.getEmail())
+        // 사용자의 이메일로 팀 멤버 정보 조회 (팀 소속 여부 확인)
+        return teamMemberRepository.findByUserId(userId)
                 .orElseThrow(TeamMemberNotMappedException::new);
     }
 }

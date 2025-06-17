@@ -27,7 +27,7 @@ public class TeamRoleAspect {
     public Object checkRole(ProceedingJoinPoint joinPoint) throws Throwable {
         // 현재 인증 정보 가져오기
         JwtAuthentication authentication = (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getEmail();
+        Long userId = authentication.getUserId();
 
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
@@ -40,7 +40,7 @@ public class TeamRoleAspect {
             checkRole = joinPoint.getTarget().getClass().getAnnotation(CheckRole.class);
         }
 
-        TeamMember member = teamMemberRepository.findByEmail(email)
+        TeamMember member = teamMemberRepository.findByUserId(userId)
                 .orElseThrow(TeamMemberNotMappedException::new);
 
         if (!member.getRole().equals(checkRole.value())) {
