@@ -17,7 +17,7 @@ public class GitInfo extends BaseEntity {
     private Long id;
 
     @NotNull
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Users user;
 
