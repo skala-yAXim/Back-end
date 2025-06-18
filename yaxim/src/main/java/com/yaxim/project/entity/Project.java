@@ -28,6 +28,9 @@ public class Project extends BaseEntity {
     @Column(nullable = false, length = 200)
     private String name;
 
+    @Setter
+    private Integer progress;
+
     @NotNull
     @JoinColumn(name = "team_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
