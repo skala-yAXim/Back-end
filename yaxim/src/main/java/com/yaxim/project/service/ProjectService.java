@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -122,6 +123,17 @@ public class ProjectService {
                         p.getEndDate(),
                         p.calculateStatus()
                 ));
+    }
+
+    @Transactional
+    public void updateProjectProgress(List<Map<String, Object>> report) {
+        report.forEach(r -> {
+            Map<String, Object> teamProgress = (Map<String, Object>) r.get("team_progress_overview");
+
+            Project project = findProjectById(Long.parseLong(r.get("project_id").toString()));
+
+            project.setProgress(Integer.parseInt(teamProgress.get("overall_progress").toString()));
+        });
     }
 
     /**

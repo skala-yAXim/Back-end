@@ -3,6 +3,7 @@ package com.yaxim.global.for_ai;
 import com.yaxim.global.for_ai.dto.request.*;
 import com.yaxim.global.for_ai.dto.response.TeamWithMemberAndProjectResponse;
 import com.yaxim.report.controller.dto.response.DailyReportDetailResponse;
+import com.yaxim.report.controller.dto.response.TeamWeeklyReportResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
 import com.yaxim.report.service.TeamWeeklyReportService;
 import com.yaxim.report.service.UserDailyReportService;
@@ -56,9 +57,9 @@ public class ApiForAiController {
 
     @Operation(summary = "팀 Weekly 생성")
     @PostMapping("/report/team-weekly")
-    public ResponseEntity<WeeklyReportDetailResponse> createTeamWeeklyReport(
+    public ResponseEntity<TeamWeeklyReportResponse> createTeamWeeklyReport(
             @Valid @RequestBody TeamWeeklyReportCreateRequest request) {
-        WeeklyReportDetailResponse response = teamWeeklyReportService.createTeamWeeklyReport(request);
+        TeamWeeklyReportResponse response = teamWeeklyReportService.createTeamWeeklyReport(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
