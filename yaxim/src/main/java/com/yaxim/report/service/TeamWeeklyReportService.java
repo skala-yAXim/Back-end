@@ -2,11 +2,9 @@ package com.yaxim.report.service;
 
 import com.yaxim.dashboard.comment.service.CommentService;
 import com.yaxim.global.for_ai.dto.request.TeamWeeklyReportCreateRequest;
+import com.yaxim.project.service.ProjectService;
 import com.yaxim.report.controller.dto.request.TeamMemberWeeklyPageRequest;
-import com.yaxim.report.controller.dto.response.TeamMemberWeeklyDetailResponse;
-import com.yaxim.report.controller.dto.response.TeamMemberWeeklyReportResponse;
-import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
-import com.yaxim.report.controller.dto.response.WeeklyReportResponse;
+import com.yaxim.report.controller.dto.response.*;
 import com.yaxim.report.entity.TeamWeeklyReport;
 import com.yaxim.report.entity.UserWeeklyReport;
 import com.yaxim.report.exception.ReportAccessDeniedException;
@@ -19,27 +17,29 @@ import com.yaxim.team.entity.TeamMember;
 import com.yaxim.team.exception.TeamMemberNotMappedException;
 import com.yaxim.team.repository.TeamMemberRepository;
 import com.yaxim.team.repository.TeamRepository;
-import com.yaxim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional; // Spring의 Transactional import
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TeamWeeklyReportService {
 
     private final TeamWeeklyReportRepository teamWeeklyReportRepository;
-    private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final TeamRepository teamRepository;
     private final UserWeeklyReportRepository userWeeklyReportRepository;
     private final TeamMemberWeeklyPageRepository teamMemberWeeklyPageRepository;
     private final CommentService commentService;
+    private final ProjectService projectService;
 
     @Transactional
-    public WeeklyReportDetailResponse createTeamWeeklyReport(TeamWeeklyReportCreateRequest request) {
+    public TeamWeeklyReportResponse createTeamWeeklyReport(TeamWeeklyReportCreateRequest request) {
         Team team = teamRepository.findById(request.getTeamId())
                 .orElseThrow(TeamMemberNotMappedException::new);
 
@@ -58,11 +58,16 @@ public class TeamWeeklyReportService {
                         .getOrDefault("weekly_short_review", "")
         );
 
-        return WeeklyReportDetailResponse.from(report);
+        projectService.updateProjectProgress(
+                (List) report.getReport()
+                        .getOrDefault("team_weekly_report", new ArrayList<>())
+        );
+
+        return TeamWeeklyReportResponse.from(report);
     }
 
     @Transactional(readOnly = true)
-    public Page<WeeklyReportResponse> getTeamWeeklyReport(Long userId, Pageable pageable) {
+    public Page<TeamWeeklyReportResponse> getTeamWeeklyReport(Long userId, Pageable pageable) {
         // 검증 로직을 헬퍼 메서드로 통합
         TeamMember viewer = validateUserAndGetTeamMember(userId);
 
@@ -70,11 +75,11 @@ public class TeamWeeklyReportService {
                         viewer.getTeam(),
                         pageable
                 )
-                .map(WeeklyReportResponse::fromTeam);
+                .map(TeamWeeklyReportResponse::from);
     }
 
     @Transactional(readOnly = true)
-    public WeeklyReportDetailResponse getReportById(Long reportId, Long userId) {
+    public TeamWeeklyDetailResponse getReportById(Long reportId, Long userId) {
         // 1. 요청자 정보 확인
         TeamMember viewer = validateUserAndGetTeamMember(userId);
 
@@ -87,7 +92,7 @@ public class TeamWeeklyReportService {
             throw new ReportAccessDeniedException();
         }
 
-        return WeeklyReportDetailResponse.from(report);
+        return TeamWeeklyDetailResponse.from(report);
     }
 
     @Transactional
