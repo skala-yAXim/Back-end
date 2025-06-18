@@ -48,7 +48,7 @@ public class UserWeeklyReportService {
     @Transactional(readOnly = true)
     public Page<WeeklyReportResponse> getMyWeeklyReports(Long userId, Pageable pageable) {
         return weeklyReportRepository.findByUserId(userId, pageable)
-                .map(WeeklyReportResponse::fromTeam);
+                .map(WeeklyReportResponse::from);
     }
 
     @Transactional(readOnly = true)
