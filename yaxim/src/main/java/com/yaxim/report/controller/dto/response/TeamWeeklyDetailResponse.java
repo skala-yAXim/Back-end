@@ -1,7 +1,6 @@
 package com.yaxim.report.controller.dto.response;
 
 import com.yaxim.report.entity.TeamWeeklyReport;
-import com.yaxim.report.entity.UserWeeklyReport;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +11,7 @@ import java.util.Map;
 
 @Getter
 @AllArgsConstructor
-public class WeeklyReportDetailResponse {
+public class TeamWeeklyDetailResponse {
     @Schema(description = "보고서 ID")
     private Long id;
 
@@ -31,19 +30,23 @@ public class WeeklyReportDetailResponse {
     @Schema(description = "보고서 제목")
     private String title;
 
-    @Schema(description = "보고서 내용 (JSON 객체)")
-    private Object report;
+    @Schema(description = "보고서 내용 (md 형식)")
+    private String reportMd;
 
-    public static WeeklyReportDetailResponse from(UserWeeklyReport report) {
+    @Schema(description = "보고서 내용 (JSON 객체)")
+    private Object reportJson;
+
+    public static TeamWeeklyDetailResponse from(TeamWeeklyReport report) {
         Map<String, Object> reportMap = report.getReport();
 
-        return new WeeklyReportDetailResponse(
+        return new TeamWeeklyDetailResponse(
                 report.getId(),
                 report.getCreatedAt(),
                 report.getUpdatedAt(),
                 report.getStartDate(),
                 report.getEndDate(),
                 (String) reportMap.getOrDefault("report_title", ""),
+                (String) reportMap.getOrDefault("weekly_report_md", ""),
                 reportMap
         );
     }

@@ -50,7 +50,7 @@ public class TeamMemberWeeklyDetailResponse {
                 report.getUpdatedAt(),
                 report.getStartDate(),
                 report.getEndDate(),
-                (String) reportMap.getOrDefault("title", ""),
+                (String) reportMap.getOrDefault("report_title", ""),
                 reportMap,
                 user.getId(),
                 user.getName()
