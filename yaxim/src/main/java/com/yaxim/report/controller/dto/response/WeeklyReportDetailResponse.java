@@ -34,20 +34,6 @@ public class WeeklyReportDetailResponse {
     @Schema(description = "보고서 내용 (JSON 객체)")
     private Object report;
 
-    public static WeeklyReportDetailResponse from(TeamWeeklyReport report) {
-        Map<String, Object> reportMap = report.getReport();
-
-        return new WeeklyReportDetailResponse(
-                report.getId(),
-                report.getCreatedAt(),
-                report.getUpdatedAt(),
-                report.getStartDate(),
-                report.getEndDate(),
-                (String) reportMap.getOrDefault("title", ""),
-                reportMap
-        );
-    }
-
     public static WeeklyReportDetailResponse from(UserWeeklyReport report) {
         Map<String, Object> reportMap = report.getReport();
 
@@ -57,7 +43,7 @@ public class WeeklyReportDetailResponse {
                 report.getUpdatedAt(),
                 report.getStartDate(),
                 report.getEndDate(),
-                (String) reportMap.getOrDefault("title", ""),
+                (String) reportMap.getOrDefault("report_title", ""),
                 reportMap
         );
     }
