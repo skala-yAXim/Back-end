@@ -29,6 +29,9 @@ public class ProjectDetailResponse {
     @Schema(description = "프로젝트명", example = "웹 애플리케이션 개발")
     private String name;
 
+    @Schema(description = "프로젝트 진척도", example = "65")
+    private Integer progress;
+
     @Schema(description = "프로젝트 시작일", example = "2024-01-01")
     private LocalDate startDate;
 
@@ -50,6 +53,7 @@ public class ProjectDetailResponse {
                 .createdAt(project.getCreatedAt())
                 .updatedAt(project.getUpdatedAt())
                 .name(project.getName())
+                .progress(project.getProgress())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .description(project.getDescription())
