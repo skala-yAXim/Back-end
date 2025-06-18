@@ -3,10 +3,7 @@ package com.yaxim.report.controller;
 import com.yaxim.global.auth.aop.CheckRole;
 import com.yaxim.global.auth.jwt.JwtAuthentication;
 import com.yaxim.report.controller.dto.request.TeamMemberWeeklyPageRequest;
-import com.yaxim.report.controller.dto.response.TeamMemberWeeklyDetailResponse;
-import com.yaxim.report.controller.dto.response.TeamMemberWeeklyReportResponse;
-import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
-import com.yaxim.report.controller.dto.response.WeeklyReportResponse;
+import com.yaxim.report.controller.dto.response.*;
 import com.yaxim.report.service.TeamWeeklyReportService;
 import com.yaxim.user.entity.UserRole;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,21 +58,21 @@ public class TeamWeeklyReportController {
 
     @Operation(summary = "팀 위클리 보고서 목록 조회")
     @GetMapping
-    public ResponseEntity<Page<WeeklyReportResponse>> getTeamWeeklyReports(
+    public ResponseEntity<Page<TeamWeeklyReportResponse>> getTeamWeeklyReports(
             @Parameter(hidden = true) JwtAuthentication auth,
             @PageableDefault(sort = "startDate", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<WeeklyReportResponse> reports = teamWeeklyReportService.getTeamWeeklyReport(auth.getUserId(), pageable);
+        Page<TeamWeeklyReportResponse> reports = teamWeeklyReportService.getTeamWeeklyReport(auth.getUserId(), pageable);
         return ResponseEntity.ok(reports);
     }
 
     @Operation(summary = "팀 위클리 보고서 상세 조회")
     @GetMapping("/{reportId}")
-    public ResponseEntity<WeeklyReportDetailResponse> getTeamWeeklyReport(
+    public ResponseEntity<TeamWeeklyDetailResponse> getTeamWeeklyReport(
             @PathVariable Long reportId,
             @Parameter(hidden = true) JwtAuthentication auth
     ) {
-        WeeklyReportDetailResponse report = teamWeeklyReportService.getReportById(reportId, auth.getUserId());
+        TeamWeeklyDetailResponse report = teamWeeklyReportService.getReportById(reportId, auth.getUserId());
         return ResponseEntity.ok(report);
     }
 
