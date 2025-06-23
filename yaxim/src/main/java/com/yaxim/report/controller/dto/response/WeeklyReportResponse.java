@@ -30,16 +30,10 @@ public class WeeklyReportResponse {
     @Schema(description = "보고서 제목")
     private String title;
 
-    @Schema(description = "보고서 미리보기")
-    private String preview;
-
     public static WeeklyReportResponse from(UserWeeklyReport report) {
         Map<String, Object> reportMap = report.getReport();
 
         String reportTitle = (String) reportMap.getOrDefault("report_title", "");
-        // 중첩된 Map 꺼내기
-        Map<String, Object> weeklyReportMap = (Map<String, Object>) reportMap.get("weekly_report");
-        String summary = (String) weeklyReportMap.getOrDefault("summary", "");
 
         return new WeeklyReportResponse(
                 report.getId(),
@@ -47,8 +41,7 @@ public class WeeklyReportResponse {
                 report.getUpdatedAt(),
                 report.getStartDate(),
                 report.getEndDate(),
-                reportTitle,
-                summary
+                reportTitle
         );
     }
 }
