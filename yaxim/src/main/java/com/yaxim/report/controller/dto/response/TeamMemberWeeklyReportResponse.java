@@ -31,9 +31,6 @@ public class TeamMemberWeeklyReportResponse {
     @Schema(description = "보고서 제목")
     private String title;
 
-    @Schema(description = "보고서 미리보기")
-    private String preview;
-
     @Schema(description = "작성자 ID (개인 보고서만 해당)")
     private Long userId;
 
@@ -45,9 +42,6 @@ public class TeamMemberWeeklyReportResponse {
         Users user = report.getUser();
 
         String reportTitle = (String) reportMap.getOrDefault("report_title", "");
-        // 중첩된 Map 꺼내기
-        Map<String, Object> weeklyReportMap = (Map<String, Object>) reportMap.get("weekly_report");
-        String summary = (String) weeklyReportMap.getOrDefault("summary", "");
 
         return new TeamMemberWeeklyReportResponse(
                 report.getId(),
@@ -56,7 +50,6 @@ public class TeamMemberWeeklyReportResponse {
                 report.getStartDate(),
                 report.getEndDate(),
                 reportTitle,
-                summary,
                 user.getId(),
                 user.getName()
         );
