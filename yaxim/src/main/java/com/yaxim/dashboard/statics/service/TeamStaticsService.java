@@ -21,12 +21,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class TeamStaticsService {
-    private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserStaticsRepository userStaticsRepository;
     private final TeamStaticsRepository teamStaticsRepository;
@@ -37,37 +37,12 @@ public class TeamStaticsService {
 
         Boolean hasData = teamStaticsRepository.existsAllByTeamId(team.getId());
 
-        List<DailyTeamActivity> activities = new ArrayList<>();
+        List<DailyTeamActivity> activities;
 
         if (hasData) {
             activities = teamStaticsRepository.findAllByTeam(team);
         } else {
-            List<Users> users = teamMemberRepository.getUsersByTeamIn(team);
-
-            for (int i = 0; i < 7; i++) {
-                TeamActivity data = userStaticsRepository.getTeamActivityByWeekdayAndUser(Weekday.of(i), users);
-
-                DailyTeamActivity activity = teamStaticsRepository.save(
-                        new DailyTeamActivity(
-                                data.getReportDate(),
-                                data.getTeamsPost(),
-                                data.getTeamsReply(),
-                                data.getEmailSend(),
-                                data.getEmailReceive(),
-                                data.getDocsDocx(),
-                                data.getDocsXlsx(),
-                                data.getDocsPptx(),
-                                data.getDocsEtc(),
-                                data.getGitPullRequest(),
-                                data.getGitCommit(),
-                                data.getGitIssue(),
-                                team,
-                                Weekday.of(i)
-                        )
-                );
-
-                activities.add(activity);
-            }
+            activities = createTeamActivity(team);
         }
 
         return activities.stream()
@@ -81,8 +56,15 @@ public class TeamStaticsService {
         List<AverageActivity> activities = new ArrayList<>();
 
         for (Team team : teams) {
-            for (int i = 0; i < 7; i++) {
-                activities.add(teamStaticsRepository.getTeamAvgByDayAndTeam(Weekday.of(i), team));
+            if (!teamStaticsRepository.existsAllByTeamId(team.getId())) {
+                if (createTeamActivity(team).isEmpty()) {
+                    continue;
+                }
+            }
+
+            for (Weekday i : Weekday.values()) {
+                teamStaticsRepository.getTeamAvgByDayAndTeam(i, team)
+                        .ifPresent(activities::add);
             }
         }
 
@@ -97,10 +79,12 @@ public class TeamStaticsService {
         Boolean hasData = teamStaticsRepository.existsAllByTeamId(team.getId());
 
         if (!hasData) {
-            getTeamStatic(userId);
-        }
+            List<GeneralStaticsResponse> created = getTeamStatic(userId);
 
-        log.info(team.getId());
+            if (created.isEmpty()) {
+                return new SumStaticResponse();
+            }
+        }
 
         return SumStaticResponse.from(
                 teamStaticsRepository.getTeamWeekActivity(team)
@@ -111,5 +95,42 @@ public class TeamStaticsService {
         return teamMemberRepository.findByUserId(userId)
                 .orElseThrow(TeamMemberNotMappedException::new)
                 .getTeam();
+    }
+
+    private List<DailyTeamActivity> createTeamActivity(Team team) {
+        List<DailyTeamActivity> activities = new ArrayList<>();
+        List<Users> users = teamMemberRepository.getUsersByTeamIn(team);
+
+        for (Weekday i : Weekday.values()) {
+            Optional<TeamActivity> optional = userStaticsRepository.getTeamActivityByWeekdayAndUser(i, users);
+            if (optional.isEmpty()) {
+                continue;
+            }
+
+            TeamActivity data = optional.get();
+
+            DailyTeamActivity activity = teamStaticsRepository.save(
+                    new DailyTeamActivity(
+                            data.getReportDate(),
+                            data.getTeamsPost(),
+                            data.getTeamsReply(),
+                            data.getEmailSend(),
+                            data.getEmailReceive(),
+                            data.getDocsDocx(),
+                            data.getDocsXlsx(),
+                            data.getDocsPptx(),
+                            data.getDocsEtc(),
+                            data.getGitPullRequest(),
+                            data.getGitCommit(),
+                            data.getGitIssue(),
+                            team,
+                            i
+                    )
+            );
+
+            activities.add(activity);
+        }
+
+        return activities;
     }
 }

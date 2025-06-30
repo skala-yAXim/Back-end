@@ -25,8 +25,8 @@ import java.util.List;
 @Tag(name = "AI 전용 API", description = "자물쇠 눌러서 AI API Key로 Authorize 해주세요!")
 public class ApiForAiController {
     private final TeamService teamService;
-    private final UserWeeklyReportService userWeeklyReportService;
     private final UserDailyReportService userDailyReportService;
+    private final UserWeeklyReportService userWeeklyReportService;
     private final TeamWeeklyReportService teamWeeklyReportService;
 
     // Team
