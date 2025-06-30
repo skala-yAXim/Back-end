@@ -1,8 +1,8 @@
 package com.yaxim.project.controller.dto.request;
 
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-@NoArgsConstructor
+@Builder
 public class ProjectCreateRequest {
 
     @NotBlank(message = "프로젝트명은 필수입니다.")

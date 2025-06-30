@@ -4,9 +4,7 @@ import com.yaxim.global.s3.S3Service;
 import com.yaxim.project.entity.Project;
 import com.yaxim.project.entity.ProjectFile;
 import com.yaxim.project.exception.ProjectFileNotFoundException;
-import com.yaxim.project.exception.ProjectNotFoundException;
 import com.yaxim.project.repository.ProjectFileRepository;
-import com.yaxim.project.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -46,9 +43,6 @@ public class ProjectFileService {
      * 개별 파일 업로드
      */
     private ProjectFile uploadSingleProjectFile(Project project, MultipartFile file) {
-
-        log.info(project.getName());
-        log.info(file.getOriginalFilename());
 
         // 중복 파일명 처리 (자동 리네임)
         String originalFileName = file.getOriginalFilename();
@@ -101,9 +95,6 @@ public class ProjectFileService {
 
         // DB에서 파일 정보 삭제
         projectFileRepository.delete(projectFile);
-
-        log.info("프로젝트 파일 삭제 완료 - 파일 ID: {}, 파일명: {}", 
-                fileId, projectFile.getOriginalFileName());
     }
 
     /**
@@ -118,9 +109,6 @@ public class ProjectFileService {
 
         // DB에서 모든 파일 정보 삭제
         projectFileRepository.deleteByProjectId(projectId);
-
-        log.info("프로젝트 전체 파일 삭제 완료 - 프로젝트 ID: {}, 삭제된 파일 수: {}", 
-                projectId, projectFiles.size());
     }
 
     // === Private Helper Methods ===

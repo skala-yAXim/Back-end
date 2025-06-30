@@ -26,14 +26,11 @@ public class AwsConfig {
                             @Value("${aws.s3.region}") String region) {
         try {
             AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
-            
-            S3Client client = S3Client.builder()
+
+            return S3Client.builder()
                     .region(Region.of(region))
                     .credentialsProvider(StaticCredentialsProvider.create(credentials))
                     .build();
-                    
-            log.info("✅ S3Client Bean 생성 완료 (region: {})", region);
-            return client;
             
         } catch (Exception e) {
             log.error("❌ S3Client Bean 생성 실패: {}", e.getMessage());
@@ -47,14 +44,11 @@ public class AwsConfig {
                                   @Value("${aws.s3.region}") String region) {
         try {
             AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
-            
-            S3Presigner presigner = S3Presigner.builder()
+
+            return S3Presigner.builder()
                     .region(Region.of(region))
                     .credentialsProvider(StaticCredentialsProvider.create(credentials))
                     .build();
-                    
-            log.info("✅ S3Presigner Bean 생성 완료 (region: {})", region);
-            return presigner;
             
         } catch (Exception e) {
             log.error("❌ S3Presigner Bean 생성 실패: {}", e.getMessage());

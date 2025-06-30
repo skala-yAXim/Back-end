@@ -3,7 +3,6 @@ package com.yaxim.global.s3;
 import com.yaxim.project.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +13,6 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -62,8 +60,6 @@ public class S3Service {
         String storedFileName = generateStoredFileName(originalFileName);
         String s3ObjectKey = projectFilesPrefix + "project-" + projectId + "/" + storedFileName;
 
-        log.info("S3 Object Key: {}", s3ObjectKey);
-
         // 메타데이터 설정
         Map<String, String> metadata = createFileMetadata(file, projectId);
 
@@ -86,7 +82,6 @@ public class S3Service {
                     )
             );
 
-            log.info("success");
         } catch (Exception e) {
             throw new FileUploadFailedException();
         }
