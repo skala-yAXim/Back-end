@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -21,6 +22,10 @@ public class UserStaticsService {
     private final UserStaticsRepository userStaticsRepository;
 
     public List<GeneralStaticsResponse> getUserStatic(Long userId) {
+        if (!userStaticsRepository.existsAllByUserId(userId)) {
+            return Collections.emptyList();
+        }
+
         List<DailyUserActivity> activities = userStaticsRepository.findAllByUserId(userId);
 
         return activities.stream()
@@ -30,9 +35,13 @@ public class UserStaticsService {
 
     public List<AverageStaticsResponse> getUsersAverageStatic() {
         List<AverageActivity> activities = new ArrayList<>();
+        if (!userStaticsRepository.existsAll()) {
+            return Collections.emptyList();
+        }
 
-        for (int i = 0; i < 7; i++) {
-            activities.add(userStaticsRepository.getUserAvgActivityByWeekDay(Weekday.of(i)));
+        for (Weekday i : Weekday.values()) {
+            userStaticsRepository.getUserAvgActivityByWeekDay(i)
+                            .ifPresent(activities::add);
         }
 
         return activities.stream()
@@ -41,6 +50,10 @@ public class UserStaticsService {
     }
 
     public SumStaticResponse getUserWeekStatics(Long userId) {
+        if (!userStaticsRepository.existsAllByUserId(userId)) {
+            return new SumStaticResponse();
+        }
+
         return SumStaticResponse.from(
                 userStaticsRepository.getUserWeekActivity(userId)
         );

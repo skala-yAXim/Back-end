@@ -3,9 +3,11 @@ package com.yaxim.dashboard.statics.controller.dto.response;
 import com.yaxim.dashboard.statics.entity.select.SumActivity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class SumStaticResponse {
     private SumStaticResponse.Teams teams;
     private SumStaticResponse.Docs docs;

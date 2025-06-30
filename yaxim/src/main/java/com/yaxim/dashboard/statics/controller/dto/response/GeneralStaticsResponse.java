@@ -3,14 +3,14 @@ package com.yaxim.dashboard.statics.controller.dto.response;
 import com.yaxim.dashboard.statics.entity.DailyUserActivity;
 import com.yaxim.dashboard.statics.entity.DailyTeamActivity;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class GeneralStaticsResponse {
     private LocalDate report_date;
     private Teams teams;
@@ -18,14 +18,14 @@ public class GeneralStaticsResponse {
     private Email email;
     private Git git;
 
-    @Getter
+    @Data
     @AllArgsConstructor
     public static class Teams {
         private Long post;
         private Long reply;
     }
 
-    @Getter
+    @Data
     @AllArgsConstructor
     public static class Docs {
         private Long docx;
@@ -35,7 +35,7 @@ public class GeneralStaticsResponse {
 
     }
 
-    @Getter
+    @Data
     @AllArgsConstructor
     public static class Email {
         private Long receive;
@@ -43,7 +43,7 @@ public class GeneralStaticsResponse {
 
     }
 
-    @Getter
+    @Data
     @AllArgsConstructor
     public static class Git {
         private Long pull_request;
