@@ -120,6 +120,10 @@ public class JwtProvider implements AuthenticationProvider {
 
     public Jws<Claims> validateToken(String token, String type) {
         try {
+            if (token == null || token.isEmpty()) {
+                throw new InvalidTokenException();
+            }
+
             Jws<Claims> jws = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
