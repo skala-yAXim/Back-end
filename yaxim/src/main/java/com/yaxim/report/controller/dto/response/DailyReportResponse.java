@@ -35,8 +35,8 @@ public class DailyReportResponse {
 
         String reportTitle = (String) reportMap.getOrDefault("report_title", "");
         // 중첩된 Map 꺼내기
-        Map<String, Object> weeklyReportMap = (Map<String, Object>) reportMap.get("daily_report");
-        String summary = (String) weeklyReportMap.getOrDefault("summary", "");
+        Map<String, Object> dailyReportMap = (Map<String, Object>) reportMap.get("daily_report");
+        String summary = (String) dailyReportMap.getOrDefault("summary", "");
 
         return new DailyReportResponse(
                 report.getId(),
