@@ -79,7 +79,7 @@ public class ApiForAiController {
             @RequestBody UserWeeklyListRequest request
             ) {
         return ResponseEntity.ok(
-                userDailyReportService.getUserWeeklyReport(request)
+                userWeeklyReportService.getUserWeeklyReport(request)
         );
     }
 }
