@@ -1,5 +1,6 @@
 package com.yaxim.report.service;
 
+import com.yaxim.global.for_ai.dto.request.UserWeeklyListRequest;
 import com.yaxim.global.for_ai.dto.request.WeeklyReportCreateRequest;
 import com.yaxim.report.controller.dto.response.WeeklyReportDetailResponse;
 import com.yaxim.report.controller.dto.response.WeeklyReportResponse;
@@ -18,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -67,5 +70,20 @@ public class UserWeeklyReportService {
             throw new ReportAccessDeniedException();
         }
         weeklyReportRepository.delete(report);
+    }
+
+    @Transactional(readOnly = true)
+    public List<WeeklyReportDetailResponse> getUserWeeklyReport(
+            UserWeeklyListRequest request
+    ) {
+        List<UserWeeklyReport> reports = weeklyReportRepository.findByTeamIdAndStartDateAndEndDate(
+                request.getTeamId(),
+                request.getStartDate(),
+                request.getEndDate()
+        );
+
+        return reports.stream()
+                .map(WeeklyReportDetailResponse::from)
+                .toList();
     }
 }

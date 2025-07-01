@@ -38,5 +38,13 @@ public class DailyUserActivity {
     private Long gitPullRequest;
     private Long gitCommit;
     private Long gitIssue;
+
+    public DailyUserActivity(
+            Users user,
+            Weekday day
+    ) {
+        this.user = user;
+        this.day = day;
+    }
 }
 

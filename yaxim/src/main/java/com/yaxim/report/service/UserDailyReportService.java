@@ -37,9 +37,6 @@ public class UserDailyReportService {
     private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final CommentService commentService;
-    private final UserWeeklyReportRepository userWeeklyReportRepository;
-    private final TeamRepository teamRepository;
-    private final RequestBodyService requestBodyBuilder;
 
     @Transactional
     public DailyReportDetailResponse createDailyReport(Long userId, DailyReportCreateRequest request) {
@@ -100,21 +97,6 @@ public class UserDailyReportService {
         );
         return reports.stream()
                 .map(DailyReportDetailResponse::from)
-                .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<WeeklyReportDetailResponse> getUserWeeklyReport(
-            UserWeeklyListRequest request
-    ) {
-        List<UserWeeklyReport> reports = userWeeklyReportRepository.findByTeamIdAndStartDateAndEndDate(
-                request.getTeamId(),
-                request.getStartDate(),
-                request.getEndDate()
-        );
-
-        return reports.stream()
-                .map(WeeklyReportDetailResponse::from)
                 .toList();
     }
 }

@@ -10,9 +10,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserStaticsRepository extends JpaRepository<DailyUserActivity, Long> {
     List<DailyUserActivity> findAllByUserId(Long userId);
+    Boolean existsAllByUserId(Long userId);
+    @Query("SELECT CASE WHEN COUNT(d) > 0 THEN true ELSE false END FROM DailyUserActivity d")
+    Boolean exists();
 
     @Query("""
         SELECT new com.yaxim.dashboard.statics.entity.select.AverageActivity (
@@ -33,7 +37,7 @@ public interface UserStaticsRepository extends JpaRepository<DailyUserActivity, 
         WHERE a.day = :day
         GROUP BY a.reportDate
     """)
-    AverageActivity getUserAvgActivityByWeekDay(Weekday day);
+    Optional<AverageActivity> getUserAvgActivityByWeekDay(Weekday day);
 
     @Query("""
         SELECT new com.yaxim.dashboard.statics.entity.select.SumActivity (
@@ -73,5 +77,5 @@ public interface UserStaticsRepository extends JpaRepository<DailyUserActivity, 
         WHERE a.user in :users AND a.day = :day
         GROUP BY a.reportDate
     """)
-    TeamActivity getTeamActivityByWeekdayAndUser(Weekday day, List<Users> users);
+    Optional<TeamActivity> getTeamActivityByWeekdayAndUser(Weekday day, List<Users> users);
 }
