@@ -69,4 +69,12 @@ public class DailyTeamActivity {
         this.team = team;
         this.day = day;
     }
+
+    public DailyTeamActivity(
+            Team team,
+            Weekday day
+    ) {
+        this.team = team;
+        this.day = day;
+    }
 }

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TeamStaticsRepository extends JpaRepository<DailyTeamActivity, Long> {
     Boolean existsAllByTeamId(String team_id);
@@ -33,7 +34,7 @@ public interface TeamStaticsRepository extends JpaRepository<DailyTeamActivity, 
     WHERE a.team = :team and a.day = :day
     GROUP BY a.reportDate
     """)
-    AverageActivity getTeamAvgByDayAndTeam(Weekday day, Team team);
+    Optional<AverageActivity> getTeamAvgByDayAndTeam(Weekday day, Team team);
 
     @Query("""
         SELECT new com.yaxim.dashboard.statics.entity.select.SumActivity (

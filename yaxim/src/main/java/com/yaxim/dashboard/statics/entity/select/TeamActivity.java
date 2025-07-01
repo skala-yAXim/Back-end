@@ -2,11 +2,13 @@ package com.yaxim.dashboard.statics.entity.select;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class TeamActivity {
     private LocalDate reportDate;
     private Long teamsPost;

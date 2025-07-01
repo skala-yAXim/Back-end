@@ -8,16 +8,15 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
+@Builder
 @Schema(description = "프로젝트 수정 요청")
 public class ProjectUpdateRequest {
     @NotNull(message = "프로젝트 ID는 필수 입력값입니다.")
