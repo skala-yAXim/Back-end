@@ -35,7 +35,7 @@ public class UserStaticsService {
 
     public List<AverageStaticsResponse> getUsersAverageStatic() {
         List<AverageActivity> activities = new ArrayList<>();
-        if (!userStaticsRepository.existsAll()) {
+        if (!userStaticsRepository.exists()) {
             return Collections.emptyList();
         }
 

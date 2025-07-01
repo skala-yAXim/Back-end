@@ -85,7 +85,7 @@ class UserStaticsServiceTest {
     @DisplayName("유저 전체 데이터 없을 때 예외처리")
     void testGetUsersAverageStatic_EmptyResponse_WhenDataDoesNotExist() {
         // given
-        when(userStaticsRepository.existsAll())
+        when(userStaticsRepository.exists())
                 .thenReturn(false);
 
         // when
@@ -99,7 +99,7 @@ class UserStaticsServiceTest {
     @DisplayName("일부 요일 데이터 없을 때 예외처리")
     void testGetUsersAverageStatic_ExceptionHandlingForWeekdays() {
         // given
-        when(userStaticsRepository.existsAll())
+        when(userStaticsRepository.exists())
                 .thenReturn(true);
         // Weekday가 7개니까 7번 호출된다고 가정
         when(userStaticsRepository.getUserAvgActivityByWeekDay(any(Weekday.class)))

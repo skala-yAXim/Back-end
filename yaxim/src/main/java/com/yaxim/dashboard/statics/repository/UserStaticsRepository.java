@@ -15,7 +15,8 @@ import java.util.Optional;
 public interface UserStaticsRepository extends JpaRepository<DailyUserActivity, Long> {
     List<DailyUserActivity> findAllByUserId(Long userId);
     Boolean existsAllByUserId(Long userId);
-    Boolean existsAll();
+    @Query("SELECT CASE WHEN COUNT(d) > 0 THEN true ELSE false END FROM DailyUserActivity d")
+    Boolean exists();
 
     @Query("""
         SELECT new com.yaxim.dashboard.statics.entity.select.AverageActivity (
