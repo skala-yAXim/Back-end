@@ -195,7 +195,7 @@ class TeamServiceTest {
     void getAllTeamsInfo_Success() {
         when(teamRepository.findAll()).thenReturn(List.of(team));
         when(teamMemberRepository.findByTeamId(TEAM_ID)).thenReturn(List.of(teamMember));
-        when(projectCustomRepository.findAllInProgress()).thenReturn(projects);
+        when(projectCustomRepository.findAllInProgressByTeam(team)).thenReturn(projects);
 
         List<TeamWithMemberAndProjectResponse> responses = teamService.getAllTeamsInfo();
 

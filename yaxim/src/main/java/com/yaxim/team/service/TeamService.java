@@ -132,7 +132,7 @@ public class TeamService {
                 .map(team -> {
                     List<TeamMember> members = teamMemberRepository.findByTeamId(team.getId());
                     List<TeamMemberResponse> memberResponses = getTeamMemberResponse(members);
-                    List<Project> projects = projectCustomRepository.findAllInProgress();
+                    List<Project> projects = projectCustomRepository.findAllInProgressByTeam(team);
 
                     return new TeamWithMemberAndProjectResponse(
                             team.getId(),

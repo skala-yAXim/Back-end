@@ -1,7 +1,6 @@
 package com.yaxim.project.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yaxim.project.entity.Project;
@@ -54,11 +53,14 @@ public class ProjectCustomRepository {
         );
     }
 
-    public List<Project> findAllInProgress() {
+    public List<Project> findAllInProgressByTeam(
+            Team team
+    ) {
         return queryFactory
                 .selectFrom(project)
                 .where(
-                        currentTimeBetween()
+                        currentTimeBetween(),
+                        teamEquals(team)
                 )
                 .fetch();
     }
