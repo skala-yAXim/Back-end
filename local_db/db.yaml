@@ -1,0 +1,128 @@
+# Dockerfile 방식으로 SQL 초기화 수행 (ConfigMap 제거됨)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: team-14-postgresql-config
+  namespace: sk-team-14
+data:
+  ROOT_PASSWORD: "2025skala14yaxim"
+  ORDER_DATABASE: "yaxim"
+  USER: "dev"
+---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   annotations:
+#     volume.beta.kubernetes.io/storage-provisioner: efs.csi.aws.com
+#     volume.kubernetes.io/storage-provisioner: efs.csi.aws.com
+#   name: efs-sc-team-14-postgresql
+#   namespace: sk-team-14
+# spec:
+#   accessModes:
+#   - ReadWriteMany
+#   resources:
+#     requests:
+#       storage: 100Mi
+#   storageClassName: efs-sc-shared
+#   volumeMode: Filesystem
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: team-14-postgresql
+  namespace: sk-team-14
+spec:
+  serviceName: team-14-postgresql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: team-14-postgresql
+  template:
+    metadata:
+      labels:
+        app: team-14-postgresql
+    spec:
+      containers:
+        - name: postgresql
+          image: amdp-registry.skala-ai.com/skala25a/team-14-postgresql:1.0.2
+          ports:
+            - containerPort: 5432
+          # statefulset.yaml 수정
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: team-14-postgresql-config
+                  key: ROOT_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: team-14-postgresql-config
+                  key: ORDER_DATABASE
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: team-14-postgresql-config
+                  key: USER
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteMany"]
+        storageClassName: "efs-sc-shared"
+        resources:
+          requests:
+            storage: 100Mi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: team-14-redis
+  namespace: sk-team-14
+spec:
+  serviceName: team-14-redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: team-14-redis
+  template:
+    metadata:
+      labels:
+        app: team-14-redis
+    spec:
+      containers:
+        - name: local-redis
+          image: amdp-registry.skala-ai.com/skala25a/team-14-redis:1.0.2
+          ports:
+            - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: team-14-postgresql
+  namespace: sk-team-14
+spec:
+  type: LoadBalancer
+  selector:
+    app: team-14-postgresql
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgresql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: team-14-redis
+  namespace: sk-team-14
+spec:
+  selector:
+    app: team-14-redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis
