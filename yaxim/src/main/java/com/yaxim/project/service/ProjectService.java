@@ -119,6 +119,7 @@ public class ProjectService {
                 .map(p -> new ProjectResponse(
                         p.getId(),
                         p.getName(),
+                        p.getProgress(),
                         p.getStartDate(),
                         p.getEndDate(),
                         p.calculateStatus()
