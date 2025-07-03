@@ -12,7 +12,7 @@ import com.yaxim.report.entity.TeamWeeklyReport;
 import com.yaxim.report.entity.UserWeeklyReport;
 import com.yaxim.report.exception.ReportAccessDeniedException;
 import com.yaxim.report.exception.ReportNotFoundException;
-import com.yaxim.report.repository.TeamMemberWeeklyPageRepository;
+import com.yaxim.report.repository.TeamMemberWeeklyCustomRepository;
 import com.yaxim.report.repository.TeamWeeklyReportRepository;
 import com.yaxim.report.repository.UserWeeklyReportRepository;
 import com.yaxim.team.entity.Team;
@@ -59,7 +59,7 @@ class TeamWeeklyReportServiceTest {
     @Mock
     private UserWeeklyReportRepository userWeeklyReportRepository;
     @Mock
-    private TeamMemberWeeklyPageRepository teamMemberWeeklyPageRepository;
+    private TeamMemberWeeklyCustomRepository teamMemberWeeklyCustomRepository;
     @Mock
     private CommentService commentService;
     @Mock
@@ -243,7 +243,7 @@ class TeamWeeklyReportServiceTest {
     void getTeamMemberWeeklyReports_Success() {
         Page<UserWeeklyReport> reportPage = new PageImpl<>(List.of(userWeeklyReport));
         when(teamMemberRepository.findByUserId(USER_ID)).thenReturn(Optional.of(teamMember));
-        when(teamMemberWeeklyPageRepository.findTeamMemberWeekly(pageRequest, team, pageable))
+        when(teamMemberWeeklyCustomRepository.findTeamMemberWeekly(pageRequest, team, pageable))
                 .thenReturn(reportPage);
 
         Page<TeamMemberWeeklyReportResponse> response =

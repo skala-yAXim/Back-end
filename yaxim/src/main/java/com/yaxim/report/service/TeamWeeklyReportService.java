@@ -9,7 +9,7 @@ import com.yaxim.report.entity.TeamWeeklyReport;
 import com.yaxim.report.entity.UserWeeklyReport;
 import com.yaxim.report.exception.ReportAccessDeniedException;
 import com.yaxim.report.exception.ReportNotFoundException;
-import com.yaxim.report.repository.TeamMemberWeeklyPageRepository;
+import com.yaxim.report.repository.TeamMemberWeeklyCustomRepository;
 import com.yaxim.report.repository.TeamWeeklyReportRepository;
 import com.yaxim.report.repository.UserWeeklyReportRepository;
 import com.yaxim.team.entity.Team;
@@ -34,7 +34,7 @@ public class TeamWeeklyReportService {
     private final TeamMemberRepository teamMemberRepository;
     private final TeamRepository teamRepository;
     private final UserWeeklyReportRepository userWeeklyReportRepository;
-    private final TeamMemberWeeklyPageRepository teamMemberWeeklyPageRepository;
+    private final TeamMemberWeeklyCustomRepository teamMemberWeeklyCustomRepository;
     private final CommentService commentService;
     private final ProjectService projectService;
 
@@ -122,7 +122,7 @@ public class TeamWeeklyReportService {
         TeamMember viewer = validateUserAndGetTeamMember(userId);
 
         // 2. 요청자의 팀에 속한 멤버들의 Weekly 조회
-        Page<UserWeeklyReport> reports = teamMemberWeeklyPageRepository.findTeamMemberWeekly(
+        Page<UserWeeklyReport> reports = teamMemberWeeklyCustomRepository.findTeamMemberWeekly(
                 request,
                 viewer.getTeam(),
                 pageable

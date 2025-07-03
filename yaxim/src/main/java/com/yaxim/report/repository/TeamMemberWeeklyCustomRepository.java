@@ -25,7 +25,7 @@ import static com.yaxim.report.entity.QUserWeeklyReport.userWeeklyReport;
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class TeamMemberWeeklyPageRepository {
+public class TeamMemberWeeklyCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     public Page<UserWeeklyReport> findTeamMemberWeekly(
