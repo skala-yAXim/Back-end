@@ -5,11 +5,20 @@
 # 설정 파일들
 application.properties
 application-dev.yml
+.env
+env.properties
 
 # Docker 설정 파일들
 docker-compose.yml
 local_db/postgresql/docker-compose.yml
 local_db/redis/docker-compose.yml
+init.sql
+
+# k8s 관련 파일들
+deploy.yaml
+ingress.yaml
+service.yaml
+db.yaml
 
 # 테스트 관련 문서들
 test-scenarios.md
