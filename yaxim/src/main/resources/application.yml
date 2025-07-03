@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: yaxim
+  profiles:
+    active: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+logging:
+  level:
+    org:
+      springframework:
+        security:
+          oauth2: DEBUG
+          web:
+            client: DEBUG
+
+server:
+  port: 8088
