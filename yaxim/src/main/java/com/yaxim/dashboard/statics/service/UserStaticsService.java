@@ -1,6 +1,7 @@
 package com.yaxim.dashboard.statics.service;
 
 import com.yaxim.dashboard.statics.controller.dto.response.SumStaticResponse;
+import com.yaxim.dashboard.statics.controller.dto.response.TermResponse;
 import com.yaxim.dashboard.statics.entity.select.AverageActivity;
 import com.yaxim.dashboard.statics.controller.dto.response.AverageStaticsResponse;
 import com.yaxim.dashboard.statics.controller.dto.response.GeneralStaticsResponse;
@@ -57,5 +58,9 @@ public class UserStaticsService {
         return SumStaticResponse.from(
                 userStaticsRepository.getUserWeekActivity(userId)
         );
+    }
+
+    public TermResponse getTerm() {
+        return userStaticsRepository.getTerm().get();
     }
 }
