@@ -29,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -375,7 +376,7 @@ class ProjectServiceTest {
                 .description(UPDATED_PROJECT_DESCRIPTION)
                 .startDate(START_DATE)
                 .endDate(END_DATE)
-                .files(Collections.emptyList())
+                .files(List.of(new MockMultipartFile("file", new byte[0])))
                 .deleteFileIds(Collections.emptyList())
                 .build();
 
@@ -769,7 +770,7 @@ class ProjectServiceTest {
                 .description(UPDATED_PROJECT_DESCRIPTION)
                 .startDate(START_DATE)
                 .endDate(END_DATE)
-                .files(Collections.emptyList())
+                .files(List.of(new MockMultipartFile("file", new byte[0])))
                 .deleteFileIds(List.of(1L, 2L))
                 .build();
 
