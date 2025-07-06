@@ -53,7 +53,6 @@ public class TeamStaticsService {
         List<AverageActivity> activities = new ArrayList<>();
 
         for (Weekday i : Weekday.values()) {
-            log.info(i.toString());
             teamStaticsRepository.getTeamAvgByDay(i)
                     .ifPresent(activities::add);
         }
