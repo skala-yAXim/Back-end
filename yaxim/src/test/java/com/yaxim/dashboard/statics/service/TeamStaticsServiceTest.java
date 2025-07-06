@@ -111,7 +111,7 @@ public class TeamStaticsServiceTest {
                 .thenReturn(true);
 
         for (Weekday day : Weekday.values()) {
-            when(teamStaticsRepository.getTeamAvgByDayAndTeam(day, team))
+            when(teamStaticsRepository.getTeamAvgByDay(day))
                     .thenReturn(Optional.of(new AverageActivity()));
         }
 
@@ -120,7 +120,7 @@ public class TeamStaticsServiceTest {
 
         // then
         assertEquals(7, result.size());
-        verify(teamStaticsRepository, times(7)).getTeamAvgByDayAndTeam(any(), eq(team));
+        verify(teamStaticsRepository, times(7)).getTeamAvgByDay(any());
     }
 
     @Test
@@ -230,7 +230,7 @@ public class TeamStaticsServiceTest {
         when(teamStaticsRepository.existsAllByTeamId(TEAM_ID))
                 .thenReturn(true);
         // Weekday가 7개니까 7번 호출된다고 가정
-        when(teamStaticsRepository.getTeamAvgByDayAndTeam(any(Weekday.class), eq(team)))
+        when(teamStaticsRepository.getTeamAvgByDay(any(Weekday.class)))
                 .thenReturn(Optional.of(new AverageActivity()))
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.of(new AverageActivity()))
@@ -245,6 +245,6 @@ public class TeamStaticsServiceTest {
         // then
         assertFalse(result.isEmpty());
         verify(teamStaticsRepository, times(Weekday.values().length))
-                .getTeamAvgByDayAndTeam(any(Weekday.class), eq(team));
+                .getTeamAvgByDay(any(Weekday.class));
     }
 }

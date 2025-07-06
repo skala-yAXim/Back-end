@@ -14,7 +14,6 @@ import com.yaxim.team.exception.TeamMemberNotMappedException;
 import com.yaxim.team.repository.TeamMemberRepository;
 import com.yaxim.team.repository.TeamRepository;
 import com.yaxim.user.entity.Users;
-import com.yaxim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -51,21 +50,12 @@ public class TeamStaticsService {
     }
 
     public List<AverageStaticsResponse> getTeamsAverageStatic() {
-        List<Team> teams = teamRepository.findAll();
-
         List<AverageActivity> activities = new ArrayList<>();
 
-        for (Team team : teams) {
-            if (!teamStaticsRepository.existsAllByTeamId(team.getId())) {
-                if (createTeamActivity(team).isEmpty()) {
-                    continue;
-                }
-            }
-
-            for (Weekday i : Weekday.values()) {
-                teamStaticsRepository.getTeamAvgByDayAndTeam(i, team)
-                        .ifPresent(activities::add);
-            }
+        for (Weekday i : Weekday.values()) {
+            log.info(i.toString());
+            teamStaticsRepository.getTeamAvgByDay(i)
+                    .ifPresent(activities::add);
         }
 
         return activities.stream()

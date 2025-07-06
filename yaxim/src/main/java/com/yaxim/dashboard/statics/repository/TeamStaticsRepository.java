@@ -31,10 +31,10 @@ public interface TeamStaticsRepository extends JpaRepository<DailyTeamActivity, 
             AVG(a.gitIssue)
     )
     FROM DailyTeamActivity a
-    WHERE a.team = :team and a.day = :day
+    WHERE a.day = :day
     GROUP BY a.reportDate
     """)
-    Optional<AverageActivity> getTeamAvgByDayAndTeam(Weekday day, Team team);
+    Optional<AverageActivity> getTeamAvgByDay(Weekday day);
 
     @Query("""
         SELECT new com.yaxim.dashboard.statics.entity.select.SumActivity (
