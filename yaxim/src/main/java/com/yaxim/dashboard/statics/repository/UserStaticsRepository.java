@@ -1,5 +1,6 @@
 package com.yaxim.dashboard.statics.repository;
 
+import com.yaxim.dashboard.statics.controller.dto.response.TermResponse;
 import com.yaxim.dashboard.statics.entity.select.AverageActivity;
 import com.yaxim.dashboard.statics.entity.DailyUserActivity;
 import com.yaxim.dashboard.statics.entity.Weekday;
@@ -78,4 +79,13 @@ public interface UserStaticsRepository extends JpaRepository<DailyUserActivity, 
         GROUP BY a.reportDate
     """)
     Optional<TeamActivity> getTeamActivityByWeekdayAndUser(Weekday day, List<Users> users);
+
+    @Query("""
+        SELECT new com.yaxim.dashboard.statics.controller.dto.response.TermResponse (
+         MIN(a.reportDate),
+         MAX(a.reportDate)
+        )
+        FROM DailyUserActivity a
+    """)
+    Optional<TermResponse> getTerm();
 }

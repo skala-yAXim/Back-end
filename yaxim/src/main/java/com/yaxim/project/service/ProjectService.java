@@ -143,13 +143,8 @@ public class ProjectService {
     @Transactional
     public ProjectDetailResponse updateProject(ProjectUpdateRequest request, Long userId) {
 
-        // 팀장님 스타일: Service에서 직접 예외 검증 및 throw
+        // Service에서 직접 예외 검증 및 throw
         validateProjectInfo(request);
-        
-        // 새 파일이 있는 경우에만 파일 검증
-        if (!request.getFiles().isEmpty()) {
-            validateFileUpload(request.getFiles());
-        }
 
         Team team = teamMemberRepository.findByUserId(userId)
                 .orElseThrow(TeamMemberNotMappedException::new)
@@ -178,9 +173,8 @@ public class ProjectService {
         }
 
         // 새 파일 업로드 처리
-        if (!request.getFiles().isEmpty()) {
-            List<MultipartFile> newFiles = request.getFiles();
-            validateFileUpload(newFiles);
+        if (!request.getFiles().get(0).isEmpty()) {
+            List<MultipartFile> newFiles = validateFileUpload(request.getFiles());
             try {
                 projectFileService.uploadProjectFiles(project, newFiles);
             } catch (Exception e) {

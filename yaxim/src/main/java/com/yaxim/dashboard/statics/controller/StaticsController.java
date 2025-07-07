@@ -1,5 +1,6 @@
 package com.yaxim.dashboard.statics.controller;
 
+import com.yaxim.dashboard.statics.controller.dto.response.TermResponse;
 import com.yaxim.global.auth.aop.CheckRole;
 import com.yaxim.global.auth.jwt.JwtAuthentication;
 import com.yaxim.dashboard.statics.controller.dto.response.AverageStaticsResponse;
@@ -25,6 +26,12 @@ import java.util.List;
 public class StaticsController {
     private final UserStaticsService userStaticsService;
     private final TeamStaticsService teamStaticsService;
+
+    @GetMapping("/term")
+    @Operation(summary = "통계 기간")
+    public ResponseEntity<TermResponse> getTerm() {
+        return ResponseEntity.ok(userStaticsService.getTerm());
+    }
 
     @GetMapping("/user")
     @Operation(summary = "일별 개인 업무량 반환(총 7개)")

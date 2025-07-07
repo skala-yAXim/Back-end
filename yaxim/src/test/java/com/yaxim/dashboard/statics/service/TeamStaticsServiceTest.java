@@ -105,13 +105,8 @@ public class TeamStaticsServiceTest {
     @DisplayName("팀 단위 전체 평균 통계 조회")
     void testGetTeamsAverageStatic() {
         // given
-        when(teamRepository.findAll())
-                .thenReturn(List.of(team));
-        when(teamStaticsRepository.existsAllByTeamId(TEAM_ID))
-                .thenReturn(true);
-
         for (Weekday day : Weekday.values()) {
-            when(teamStaticsRepository.getTeamAvgByDayAndTeam(day, team))
+            when(teamStaticsRepository.getTeamAvgByDay(day))
                     .thenReturn(Optional.of(new AverageActivity()));
         }
 
@@ -120,7 +115,7 @@ public class TeamStaticsServiceTest {
 
         // then
         assertEquals(7, result.size());
-        verify(teamStaticsRepository, times(7)).getTeamAvgByDayAndTeam(any(), eq(team));
+        verify(teamStaticsRepository, times(7)).getTeamAvgByDay(any());
     }
 
     @Test
@@ -191,13 +186,7 @@ public class TeamStaticsServiceTest {
     @DisplayName("평균 통계 없을 때")
     void testGetTeamsAverageStatic_skipOnCreateFailure() {
         // given
-        when(teamRepository.findAll())
-                .thenReturn(List.of(team));
-        when(teamStaticsRepository.existsAllByTeamId(TEAM_ID))
-                .thenReturn(false);
-        when(teamMemberRepository.getUsersByTeamIn(team))
-                .thenReturn(List.of(user));
-        when(userStaticsRepository.getTeamActivityByWeekdayAndUser(any(), any()))
+        when(teamStaticsRepository.getTeamAvgByDay(any(Weekday.class)))
                 .thenReturn(Optional.empty());
 
         // when
@@ -225,12 +214,8 @@ public class TeamStaticsServiceTest {
     @DisplayName("일부 요일 데이터 없을 때 예외처리")
     void testGetUsersAverageStatic_ExceptionHandlingForWeekdays() {
         // given
-        when(teamRepository.findAll())
-                .thenReturn(List.of(team));
-        when(teamStaticsRepository.existsAllByTeamId(TEAM_ID))
-                .thenReturn(true);
         // Weekday가 7개니까 7번 호출된다고 가정
-        when(teamStaticsRepository.getTeamAvgByDayAndTeam(any(Weekday.class), eq(team)))
+        when(teamStaticsRepository.getTeamAvgByDay(any(Weekday.class)))
                 .thenReturn(Optional.of(new AverageActivity()))
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.of(new AverageActivity()))
@@ -245,6 +230,6 @@ public class TeamStaticsServiceTest {
         // then
         assertFalse(result.isEmpty());
         verify(teamStaticsRepository, times(Weekday.values().length))
-                .getTeamAvgByDayAndTeam(any(Weekday.class), eq(team));
+                .getTeamAvgByDay(any(Weekday.class));
     }
 }
