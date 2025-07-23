@@ -11,6 +11,10 @@ Spring Boot 기반의 개인 업무 관리 AI 서비스 백엔드 API 서버입�
 - Query: Spring Data JPA + QueryDSL
 - Build Tool: Gradle
 
+## ⚙️ 서비스 아키텍처
+
+<img width="865" height="483" alt="image" src="https://github.com/user-attachments/assets/cadabe2e-c2b1-4efb-9db3-ec502a065d90" />
+
 ## 🚀 빠른 시작
 ### 사전 요구사항
 - Java 17 이상
